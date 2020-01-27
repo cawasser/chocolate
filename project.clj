@@ -65,6 +65,7 @@
   :profiles
   {:uberjar {:omit-source true
              :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+             :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]
              :cljsbuild{:builds
               {:min
                {:source-paths ["src/cljc" "src/cljs" "env/prod/cljs"]
@@ -78,7 +79,7 @@
                  :closure-warnings
                  {:externs-validation :off :non-standard-jsdoc :off}
                  :externs ["react/externs/react.js"]}}}}
-             
+
              :aot :all
              :uberjar-name "chocolate.jar"
              :source-paths ["env/prod/clj"]
@@ -94,7 +95,8 @@
                                  [figwheel-sidecar "0.5.19"]
                                  [pjstadig/humane-test-output "0.10.0"]
                                  [prone "2019-07-08"]
-                                 [re-frisk "0.5.4.1"]
+                                 [day8.re-frame/re-frame-10x "0.4.5"]
+                                 [day8.re-frame/tracing "0.5.3"]
                                  [ring/ring-devel "1.8.0"]
                                  [ring/ring-mock "0.4.0"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.24.1"]
@@ -107,16 +109,17 @@
                      :figwheel {:on-jsload "chocolate.core/mount-components"}
                      :compiler
                      {:output-dir "target/cljsbuild/public/js/out"
-                      :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
+                      :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true
+                                        "day8.re_frame.tracing.trace_enabled_QMARK_"  true}
                       :optimizations :none
-                      :preloads [re-frisk.preload]
+                      :preloads [day8.re-frame-10x.preload]
                       :output-to "target/cljsbuild/public/js/app.js"
                       :asset-path "/js/out"
                       :source-map true
                       :main "chocolate.app"
                       :pretty-print true}}}}
-                  
-                  
+
+
                   :doo {:build "test"}
                   :source-paths ["env/dev/clj"]
                   :resource-paths ["env/dev/resources"]
@@ -125,7 +128,7 @@
                                (pjstadig.humane-test-output/activate!)]}
    :project/test {:jvm-opts ["-Dconf=test-config.edn"]
                   :resource-paths ["env/test/resources"]
-                  :cljsbuild 
+                  :cljsbuild
                   {:builds
                    {:test
                     {:source-paths ["src/cljc" "src/cljs" "test/cljs"]
@@ -134,7 +137,7 @@
                       :main "chocolate.doo-runner"
                       :optimizations :whitespace
                       :pretty-print true}}}}
-                  
+
                   }
    :profiles/dev {}
    :profiles/test {}})
