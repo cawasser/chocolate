@@ -10,13 +10,15 @@
     [chocolate.middleware.formats :as formats]
     [chocolate.middleware.exception :as exception]
     [ring.util.http-response :refer :all]
-    [clojure.java.io :as io]))
+    [clojure.java.io :as io]
+
+    [chocolate.db.core :as db]))
 
 (defn service-routes []
   ["/api"
-   {:coercion spec-coercion/coercion
-    :muuntaja formats/instance
-    :swagger {:id ::api}
+   {:coercion   spec-coercion/coercion
+    :muuntaja   formats/instance
+    :swagger    {:id ::api}
     :middleware [;; query-params & form-params
                  parameters/parameters-middleware
                  ;; content-negotiation
@@ -35,8 +37,8 @@
                  multipart/multipart-middleware]}
 
    ;; swagger documentation
-   ["" {:no-doc true
-        :swagger {:info {:title "my-api"
+   ["" {:no-doc  true
+        :swagger {:info {:title       "my-api"
                          :description "https://cljdoc.org/d/metosin/reitit"}}}
 
     ["/swagger.json"
@@ -44,48 +46,37 @@
 
     ["/api-docs/*"
      {:get (swagger-ui/create-swagger-ui-handler
-             {:url "/api/swagger.json"
+             {:url    "/api/swagger.json"
               :config {:validator-url nil}})}]]
 
-   ["/ping"
-    {:get (constantly (ok {:message "pong"}))}]
-   
+   ["/messages"
+    {:get {:summary   "return all messages in the database"
+           :responses {200 {:body {:messages [{}]}}}
+           :handler   (fn [_]
+                        (ok {:messages (db/get-messages)}))}}]])
 
-   ["/math"
-    {:swagger {:tags ["math"]}}
 
-    ["/plus"
-     {:get {:summary "plus with spec query parameters"
-            :parameters {:query {:x int?, :y int?}}
-            :responses {200 {:body {:total pos-int?}}}
-            :handler (fn [{{{:keys [x y]} :query} :parameters}]
-                       {:status 200
-                        :body {:total (+ x y)}})}
-      :post {:summary "plus with spec body parameters"
-             :parameters {:body {:x int?, :y int?}}
-             :responses {200 {:body {:total pos-int?}}}
-             :handler (fn [{{{:keys [x y]} :body} :parameters}]
-                        {:status 200
-                         :body {:total (+ x y)}})}}]]
 
-   ["/files"
-    {:swagger {:tags ["files"]}}
+(comment
+  (db/get-messages)
+  (db/get-user {:id "100"})
 
-    ["/upload"
-     {:post {:summary "upload a file"
-             :parameters {:multipart {:file multipart/temp-file-part}}
-             :responses {200 {:body {:name string?, :size int?}}}
-             :handler (fn [{{{:keys [file]} :multipart} :parameters}]
-                        {:status 200
-                         :body {:name (:filename file)
-                                :size (:size file)}})}}]
+  (db/create-user! {:id         "200",
+                    :first_name "Steve",
+                    :last_name  "Dallas",
+                    :email      "steve@bloom.co",
+                    :pass       "123ABc"})
 
-    ["/download"
-     {:get {:summary "downloads a file"
-            :swagger {:produces ["image/png"]}
-            :handler (fn [_]
-                       {:status 200
-                        :headers {"Content-Type" "image/png"}
-                        :body (-> "public/img/warning_clojure.png"
-                                  (io/resource)
-                                  (io/input-stream))})}}]]])
+  (db/create-message! {:id       "1"
+                       :msg_type "edn"
+                       :exchange "edn-exchange"
+                       :queue    "edn-queue"
+                       :content  {:user "Chris"}})
+  (db/create-message! {:id "2"
+                       :msg_type "edn"
+                       :exchange "edn-exchange"
+                       :queue "edn-queue"
+                       :content {:user "Steve"}})
+
+
+  ())

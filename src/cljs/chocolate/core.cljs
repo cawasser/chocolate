@@ -10,7 +10,9 @@
     [chocolate.events]
     [reitit.core :as reitit]
     [reitit.frontend.easy :as rfe]
-    [clojure.string :as string])
+    [clojure.string :as string]
+
+    [chocolate.button-page :as bp])
   (:import goog.History))
 
 (defn nav-link [uri title page]
@@ -41,8 +43,7 @@
 
 (defn home-page []
   [:section.section>div.container>div.content
-   (when-let [docs @(rf/subscribe [:docs])]
-     [:div {:dangerouslySetInnerHTML {:__html (md->html docs)}}])])
+   [bp/button-page]])
 
 (def pages
   {:home #'home-page

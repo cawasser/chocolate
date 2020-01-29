@@ -1,6 +1,7 @@
 (ns chocolate.events
   (:require
     [re-frame.core :as rf]
+    [day8.re-frame.tracing :refer-macros [fn-traced]]
     [ajax.core :as ajax]
     [reitit.frontend.easy :as rfe]
     [reitit.frontend.controllers :as rfc]))
@@ -9,7 +10,7 @@
 
 (rf/reg-event-db
   :navigate
-  (fn [db [_ match]]
+  (fn-traced [db [_ match]]
     (let [old-match (:common/route db)
           new-match (assoc match :controllers
                                  (rfc/apply-controllers (:controllers old-match) match))]
@@ -17,22 +18,22 @@
 
 (rf/reg-fx
   :navigate-fx!
-  (fn [[k & [params query]]]
+  (fn-traced [[k & [params query]]]
     (rfe/push-state k params query)))
 
 (rf/reg-event-fx
   :navigate!
-  (fn [_ [_ url-key params query]]
+  (fn-traced [_ [_ url-key params query]]
     {:navigate-fx! [url-key params query]}))
 
 (rf/reg-event-db
   :set-docs
-  (fn [db [_ docs]]
+  (fn-traced [db [_ docs]]
     (assoc db :docs docs)))
 
 (rf/reg-event-fx
   :fetch-docs
-  (fn [_ _]
+  (fn-traced [_ _]
     {:http-xhrio {:method          :get
                   :uri             "/docs"
                   :response-format (ajax/raw-response-format)
@@ -40,13 +41,14 @@
 
 (rf/reg-event-db
   :common/set-error
-  (fn [db [_ error]]
+  (fn-traced [db [_ error]]
     (assoc db :common/error error)))
 
 (rf/reg-event-fx
   :page/init-home
-  (fn [_ _]
-    {:dispatch [:fetch-docs]}))
+  (fn-traced [_ _]
+    {:dispatch [:fetch-docs]}
+    {:dispatch [:load-messages]}))
 
 ;;subscriptions
 
