@@ -19,3 +19,34 @@ WHERE id = :id
 -- :doc deletes a user record given the id
 DELETE FROM users
 WHERE id = :id
+
+
+
+
+-- :name create-message! :! :n
+-- :doc create a static message to be sent on a given exchange/queue
+INSERT INTO messages
+(id, msg_type, exchange, queue, content)
+VALUES (:id, :msg_type, :exchange, :queue, :content)
+
+
+-- :name get-messages :? :*
+-- :doc get all messages from the messages table
+SELECT * FROM messages
+
+
+-- :name get-message :? :1
+-- :doc get the message with the given :id
+SELECT * FROM messages
+WHERE id = :id
+
+
+-- :name get-messages-by-type :? :*
+-- :doc get all the messages of a given :type
+SELECT * FROM messages
+WHERE msg_type = :msg_type
+
+
+
+
+
