@@ -49,11 +49,47 @@
              {:url    "/api/swagger.json"
               :config {:validator-url nil}})}]]
 
+   ["/math"
+    {:swagger {:tags ["math"]}}
+
+    ["/plus"
+     {:post {:summary "plus with spec body parameters"
+             :parameters {:body {:x int?, :y int?}}
+             :responses {200 {:body {:total int?}}}
+             :handler (fn [{{{:keys [x y]} :body} :parameters}]
+                        (prn "plus" x y)
+                        {:status 200
+                         :body {:total (+ x y)}})}}]
+    ["/minus"
+     {:post {:summary "minus with spec body parameters"
+             :parameters {:body {:x int?, :y int?}}
+             :responses {200 {:body {:total int?}}}
+             :handler (fn [{{{:keys [x y]} :body} :parameters}]
+                        (prn "minus" x y)
+                        {:status 200
+                         :body {:total (- x y)}})}}]
+    ["/concat"
+     {:post {:summary "plus with spec body parameters"
+             :parameters {:body {:x int?, :y string?}}
+             :responses {200 {:body {:total string? :worked? boolean?}}}
+             :handler (fn [{{{:keys [x y]} :body} :parameters}]
+                        (prn "concat" x y)
+                        {:status 200
+                         :body {:total (str x ", " y) :worked? true}})}}]]
+
    ["/messages"
     {:get {:summary   "return all messages in the database"
            :responses {200 {:body {:messages [{}]}}}
            :handler   (fn [_]
-                        (ok {:messages (db/get-messages)}))}}]])
+                        (ok {:messages (db/get-messages)}))}}]
+
+   ["/publish"
+    {:post {:summary   "publish a message"
+            :responses {200 {:body {:messages boolean?}}}
+            :parameters {:body {:id string?}}
+            :handler   (fn [{{{:keys [id]} :body} :parameters}]
+                         (prn "message " id " published")
+                         (ok {:messages true}))}}]])
 
 
 
