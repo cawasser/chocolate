@@ -47,6 +47,9 @@ SELECT * FROM messages
 WHERE msg_type = :msg_type
 
 
+-- :name clear-messages! :! :*
+-- :doc remove all messages form the database
+DELETE FROM messages
 
 
 

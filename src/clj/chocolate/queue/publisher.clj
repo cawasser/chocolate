@@ -128,12 +128,17 @@
 
   [{:keys [exchange msg_type queue content]}]
 
+  (prn "publishing message to " exchange "/" queue)
+
   (let [p (get-publisher-for exchange msg_type)]
     (if p
-      (protocol/publish
-        (:publisher p)
-        queue
-        content))))
+      (let [ret (protocol/publish
+                  (:publisher p)
+                  queue
+                  content)]
+        (if (nil? ret) true false))
+      false)))
+
 
 
 

@@ -10,7 +10,6 @@
     [chocolate.middleware.formats :as formats]
     [chocolate.middleware.exception :as exception]
     [ring.util.http-response :refer :all]
-    [clojure.java.io :as io]
 
     [chocolate.db.core :as db]
     [chocolate.message-publisher :as mp]))
@@ -98,6 +97,8 @@
   (db/get-messages)
   (db/get-user {:id "100"})
 
+  (db/clear-messages!)
+
   (db/create-user! {:id         "200",
                     :first_name "Steve",
                     :last_name  "Dallas",
@@ -106,13 +107,13 @@
 
   (db/create-message! {:id       "1"
                        :msg_type "edn"
-                       :exchange "edn-exchange"
-                       :queue    "edn-queue"
+                       :exchange "my-exchange"
+                       :queue    "some.queue"
                        :content  {:user "Chris"}})
   (db/create-message! {:id "2"
                        :msg_type "edn"
-                       :exchange "edn-exchange"
-                       :queue "edn-queue"
+                       :exchange "my-exchange"
+                       :queue "some.queue"
                        :content {:user "Steve"}})
 
 
