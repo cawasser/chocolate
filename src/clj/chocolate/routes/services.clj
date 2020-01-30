@@ -12,7 +12,8 @@
     [ring.util.http-response :refer :all]
     [clojure.java.io :as io]
 
-    [chocolate.db.core :as db]))
+    [chocolate.db.core :as db]
+    [chocolate.message-publisher :as mp]))
 
 (defn service-routes []
   ["/api"
@@ -89,7 +90,7 @@
             :parameters {:body {:id string?}}
             :handler   (fn [{{{:keys [id]} :body} :parameters}]
                          (prn "message " id " published")
-                         (ok {:messages true}))}}]])
+                         (ok {:messages (mp/publish-message id)}))}}]])
 
 
 
