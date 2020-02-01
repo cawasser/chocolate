@@ -44,6 +44,7 @@
 
                  [nomnom/bunnicula "2.1.0"]
                  [com.stuartsierra/component "0.4.0"]
+                 [com.google.protobuf/protobuf-java "3.11.1"]
                  [clojusc/protobuf "3.5.1-v1.1"]
 
                  [cljsjs/toastr "2.1.2-1"]]
@@ -51,6 +52,8 @@
   :min-lein-version "2.0.0"
   
   :source-paths ["src/clj" "src/cljs" "src/cljc"]
+  :java-source-paths ["src/java"]
+  :javac-options ["-d" "target/classes"]
   :test-paths ["test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"

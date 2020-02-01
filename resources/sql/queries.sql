@@ -26,8 +26,8 @@ WHERE id = :id
 -- :name create-message! :! :n
 -- :doc create a static message to be sent on a given exchange/queue
 INSERT INTO messages
-(id, msg_type, exchange, queue, content)
-VALUES (:id, :msg_type, :exchange, :queue, :content)
+(id, msg_type, pb_type, exchange, queue, content)
+VALUES (:id, :msg_type, :pb_type, :exchange, :queue, :content)
 
 
 -- :name get-messages :? :*
@@ -45,6 +45,12 @@ WHERE id = :id
 -- :doc get all the messages of a given :type
 SELECT * FROM messages
 WHERE msg_type = :msg_type
+
+
+-- :name get-messages-by-pb-type :? :*
+-- :doc get all the messages of a given :type
+SELECT * FROM messages
+WHERE pb_type = :pb_type
 
 
 -- :name clear-messages! :! :*

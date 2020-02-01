@@ -53,29 +53,29 @@
     {:swagger {:tags ["math"]}}
 
     ["/plus"
-     {:post {:summary "plus with spec body parameters"
+     {:post {:summary    "plus with spec body parameters"
              :parameters {:body {:x int?, :y int?}}
-             :responses {200 {:body {:total int?}}}
-             :handler (fn [{{{:keys [x y]} :body} :parameters}]
-                        (prn "plus" x y)
-                        {:status 200
-                         :body {:total (+ x y)}})}}]
+             :responses  {200 {:body {:total int?}}}
+             :handler    (fn [{{{:keys [x y]} :body} :parameters}]
+                           (prn "plus" x y)
+                           {:status 200
+                            :body   {:total (+ x y)}})}}]
     ["/minus"
-     {:post {:summary "minus with spec body parameters"
+     {:post {:summary    "minus with spec body parameters"
              :parameters {:body {:x int?, :y int?}}
-             :responses {200 {:body {:total int?}}}
-             :handler (fn [{{{:keys [x y]} :body} :parameters}]
-                        (prn "minus" x y)
-                        {:status 200
-                         :body {:total (- x y)}})}}]
+             :responses  {200 {:body {:total int?}}}
+             :handler    (fn [{{{:keys [x y]} :body} :parameters}]
+                           (prn "minus" x y)
+                           {:status 200
+                            :body   {:total (- x y)}})}}]
     ["/concat"
-     {:post {:summary "plus with spec body parameters"
+     {:post {:summary    "plus with spec body parameters"
              :parameters {:body {:x int?, :y string?}}
-             :responses {200 {:body {:total string? :worked? boolean?}}}
-             :handler (fn [{{{:keys [x y]} :body} :parameters}]
-                        (prn "concat" x y)
-                        {:status 200
-                         :body {:total (str x ", " y) :worked? true}})}}]]
+             :responses  {200 {:body {:total string? :worked? boolean?}}}
+             :handler    (fn [{{{:keys [x y]} :body} :parameters}]
+                           (prn "concat" x y)
+                           {:status 200
+                            :body   {:total (str x ", " y) :worked? true}})}}]]
 
    ["/messages"
     {:get {:summary   "return all messages in the database"
@@ -84,18 +84,18 @@
                         (ok {:messages (db/get-messages)}))}}]
 
    ["/publish"
-    {:post {:summary   "publish a message"
-            :responses {200 {:body {:messages boolean?}}}
+    {:post {:summary    "publish a message"
+            :responses  {200 {:body {:messages boolean?}}}
             :parameters {:body {:id string?}}
-            :handler   (fn [{{{:keys [id]} :body} :parameters}]
-                         (prn "message " id " published")
-                         (ok {:messages (mp/publish-message id)}))}}]])
+            :handler    (fn [{{{:keys [id]} :body} :parameters}]
+                          (prn "message " id " published")
+                          (ok {:messages (mp/publish-message id)}))}}]])
 
 
 
 (comment
   (db/get-messages)
-  (db/get-user {:id "100"})
+  (db/get-user {:id "200"})
 
   (db/clear-messages!)
 
@@ -105,16 +105,37 @@
                     :email      "steve@bloom.co",
                     :pass       "123ABc"})
 
-  (db/create-message! {:id       "1"
-                       :msg_type "edn"
-                       :exchange "my-exchange"
-                       :queue    "some.queue"
-                       :content  {:user "Chris"}})
-  (db/create-message! {:id "2"
-                       :msg_type "edn"
-                       :exchange "my-exchange"
-                       :queue "some.queue"
-                       :content {:user "Steve"}})
+  (do
+    (db/create-message! {:id       "1"
+                         :msg_type "edn"
+                         :exchange "my-exchange"
+                         :queue    "some.queue"
+                         :pb_type  ""
+                         :content  {:user "Chris"}})
+    (db/create-message! {:id       "2"
+                         :msg_type "edn"
+                         :exchange "my-exchange"
+                         :queue    "some.queue"
+                         :pb_type  ""
+                         :content  {:user "Steve"}})
+    (db/create-message! {:id       "3"
+                         :msg_type "pb"
+                         :exchange "pb-exchange"
+                         :queue    "person.queue"
+                         :pb_type  "Person"
+                         :content  {:id 108
+                                    :name "Alice"
+                                    :email "alice@example.com"}})
+    (db/create-message! {:id       "4"
+                         :msg_type "pb"
+                         :exchange "pb-exchange"
+                         :queue    "message.queue"
+                         :pb_type  "Message"
+                         :content  {:sender "Alice"
+                                    :content "Hello from Alice"
+                                    :tags ["hello" "alice" "friends"]}}))
+  (db/get-messages)
+
 
 
   ())

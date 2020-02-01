@@ -46,9 +46,11 @@
 (defmulti create-publisher (fn [exchange msg_type] msg_type))
 
 (defmethod create-publisher "edn" [exchange msg_type]
+  (prn "creating publisher for " msg_type "/" exchange)
   (publisher/create {:exchange-name exchange}))
 
-(defmethod create-publisher "protobuf" [exchange msg_type]
+(defmethod create-publisher "pb" [exchange msg_type]
+  (prn "creating publisher for " msg_type "/" exchange)
   (publisher/create {:exchange-name exchange :serializer (fn [m] m)}))
 
 
@@ -66,6 +68,9 @@
    publisher, so you DON'T need to start it manually"
 
   ([exchange msg-type]
+
+   (prn "get-publisher-for " msg-type "/" exchange)
+
    (let [p (get @publishers exchange)
          typ (if (nil? msg-type) "edn" msg-type)]
      (if (not p)
@@ -128,9 +133,14 @@
 
   [{:keys [exchange msg_type queue content]}]
 
-  (prn "publishing message to " exchange "/" queue)
+  (prn "publishing message to " exchange "/" queue
+    " //// (msg_type) " msg_type
+    " //// (content) " content)
 
   (let [p (get-publisher-for exchange msg_type)]
+
+    (prn "found publisher " p)
+
     (if p
       (let [ret (protocol/publish
                   (:publisher p)
@@ -198,3 +208,10 @@
 
   ())
 
+
+
+(comment
+  (get-publisher-for "my-exchange")
+  (get-publisher-for "pb-exchange" "pb")
+
+  ())
