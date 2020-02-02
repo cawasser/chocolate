@@ -15,18 +15,18 @@
    about the message: the exchange, the queue, and the message encoding type, are taken form
    the database"
   [id]
-  (if-let [msg (db/get-message {:id id})]
+  (if-let [{:keys [exchange queue msg_type] :as msg} (db/get-message {:id id})]
+    (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
+      (do
+        ;(prn "publish-message for " id
+        ;  " //// (msg) " msg)
 
-    (do
-      (prn "publish-message for " id
-        " //// (msg) " msg)
+        (condp
+          = (:msg_type msg)
 
-      (condp
-        = (:msg_type msg)
-
-        "edn" (qp/publish msg)
-        "pb" (qp/publish (encode-content msg))))
-    false))
+          "edn" (assoc ret :success (qp/publish msg))
+          "pb" (assoc ret :success (qp/publish (encode-content msg))))))
+    {:success false :id id}))
 
 
 
