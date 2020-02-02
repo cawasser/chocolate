@@ -85,11 +85,11 @@
 
    ["/publish"
     {:post {:summary    "publish a message"
-            :responses  {200 {:body {:messages boolean?}}}
+            :responses  {200 {:body {:success boolean? :exchange string?}}}
             :parameters {:body {:id string?}}
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
                           (prn "message " id " published")
-                          (ok {:messages (mp/publish-message id)}))}}]])
+                          (ok (mp/publish-message id)))}}]])
 
 
 
