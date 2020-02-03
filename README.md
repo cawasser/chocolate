@@ -1,4 +1,9 @@
-# chocolate
+# Chocolate
+
+[![contributors](https://img.shields.io/github/contributors/cawasser/chocolate)](https://github.com/cawasser/chocolate/graphs/contributors)
+[![activity](https://img.shields.io/github/commit-activity/m/cawasser/chocolate)](https://github.com/cawasser/chocolate/pulse)
+[![clojure](https://img.shields.io/badge/made%20with-Clojure-blue.svg?logo=clojure)](https://clojure.org/)
+[![version](https://img.shields.io/github/v/tag/cawasser/chocolate)](https://github.com/cawasser/chocolate/tags)
 
 A simple test harness for playing with RabbitMQ using EDN and Protocol Buffers
 
@@ -7,6 +12,8 @@ A simple test harness for playing with RabbitMQ using EDN and Protocol Buffers
 You will need [Leiningen][1] 2.0 or above installed.
 
 [1]: https://github.com/technomancy/leiningen
+
+### Development Setup and COnfiguration
 
 You will also need to add `dev-config.edn` to the main project folder, containing:
 
@@ -19,9 +26,28 @@ You will also need to add `dev-config.edn` to the main project folder, containin
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
-## Running
+### RabbitMq Configuration
 
-To start the server for the application, run:
+Prior to running the app, you will need to install (not discussed here) _and_ run RabbitMQ. Then, using  
+the management console at
+
+    localhost:15672
+
+you need to set up the following exchanges:
+
+1. `my-exchange`
+2. `pb-exchange`
+
+and the following queues and bindings:
+
+1. `some.queue` bound to `my-exchange`
+2. `person.queue` bound to `pb-queue`
+3. `message.queue` bound to `pb-queue`
+
+
+## Running the App
+
+To start the server for the application, in a terminal/powershell window, run:
 
     lein run 
 
@@ -29,4 +55,24 @@ Then, in another terminal/powershell window, run the client:
 
     lein figwheel
 
+## Using the Client
 
+When the client opens, you should see a display with at least 4 *large* buttons, each showing the message structure, meta-data,
+and content of a message stored in the database.
+
+Simply click on a message "button" and the web-server will publish the corresponding content to the defined queue and exchange.
+
+Then just look at the RabbitMQ console ot see the message traffic, and even examine the messages themselves.
+
+> NOTE: Consuming (getting) messages from the queues is _not_ currently supported.
+
+## Using Swagger-UI
+
+The app also supports swagger-ui at
+
+    localhost:3000/swagger-ui
+
+specifically the `/api/messages` and `/api/publish` routes.
+
+> Remember: `/api/publish` takes a message _id_ as it's only parameter, so understand what content  
+> you want to send before using.
