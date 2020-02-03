@@ -60,6 +60,10 @@ Then, in another terminal/powershell window, run the client:
 When the client opens, you should see a display with at least 4 *large* buttons, each showing the message structure, meta-data,
 and content of a message stored in the database.
 
+
+
+_fig. 1_
+
 Simply click on a message "button" and the web-server will publish the corresponding content to the defined queue and exchange.
 
 Then just look at the RabbitMQ console ot see the message traffic, and even examine the messages themselves.
