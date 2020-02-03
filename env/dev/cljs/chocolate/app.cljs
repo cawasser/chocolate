@@ -1,6 +1,6 @@
 (ns^:figwheel-no-load chocolate.app
   (:require
-    [chocolate.core :as core]
+    ;[chocolate.core :as core]
     [cljs.spec.alpha :as s]
     [expound.alpha :as expound]
     [devtools.core :as devtools]))
@@ -16,4 +16,4 @@
 
 (devtools/install!)
 
-(core/init!)
+;(core/init!)

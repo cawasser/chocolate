@@ -125,12 +125,12 @@
                       :output-to "target/cljsbuild/public/js/app.js"
                       :asset-path "/js/out"
                       :source-map true
-                      :main "chocolate.app"
+                      :main chocolate.core ;"chocolate.app"
                       :pretty-print true}}}}
 
 
                   :doo {:build "test"}
-                  :source-paths ["env/dev/clj"]
+                  :source-paths ["env/dev/clj" "target/%s/classes"]
                   :resource-paths ["env/dev/resources"]
                   :repl-options {:init-ns user}
                   :injections [(require 'pjstadig.humane-test-output)
