@@ -41,8 +41,8 @@ you need to set up the following exchanges:
 and the following queues and bindings:
 
 1. `some.queue` bound to `my-exchange`
-2. `person.queue` bound to `pb-queue`
-3. `message.queue` bound to `pb-queue`
+2. `person.queue` bound to `pb-exchange`
+3. `message.queue` bound to `pb-exchange`
 
 
 ## Compiling the Protocol Buffers
