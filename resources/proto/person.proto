@@ -18,8 +18,3 @@ message Message {
   required string content = 2;
   repeated string tags    = 3;
 }
-
-
-// protoc -I=/usr/local/include -I=resources/proto --java_out=src/java resources/proto/*
-
-

@@ -45,9 +45,23 @@ and the following queues and bindings:
 3. `message.queue` bound to `pb-queue`
 
 
+## Compiling the Protocol Buffers
+
+Before anything else, you need to compile the *.proto files (found [here](resources/proto)) into *.java files for further processing.
+
+First you need to install the Protocol Buffer compiler `protoc` from []() and make sure it is on your execution path. (run `protoc --version` at
+the terminal/powershell to check)
+
+To just compile the protocol buffers into Java,  run:
+
+    lein protobuf
+
+
 ## Running the App
 
-To start the server for the application, in a terminal/powershell window, run:
+The lein-protobuf plugin automatically hooks into both `lein compile` and `lein run`
+
+TRo compile everything and start the server for the application, in a terminal/powershell window, run:
 
     lein run 
 
