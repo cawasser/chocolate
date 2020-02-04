@@ -26,7 +26,7 @@ You will also need to add `dev-config.edn` to the main project folder, containin
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
-### RabbitMq Configuration
+### RabbitMQ Configuration
 
 Prior to running the app, you will need to install (not discussed here) _and_ run RabbitMQ. Then, using  
 the management console at
@@ -49,8 +49,10 @@ and the following queues and bindings:
 
 Before anything else, you need to compile the *.proto files (found [here](resources/proto)) into *.java files for further processing.
 
-First you need to install the Protocol Buffer compiler `protoc` from []() and make sure it is on your execution path. (run `protoc --version` at
-the terminal/powershell to check)
+First you need to install the appropriate Protocol Buffer compiler `protoc` from [Google](https://github.com/protocolbuffers/protobuf/releases)  
+for your operating system and make sure it is on your execution path.
+
+(run `protoc --version` at the terminal/powershell to check)
 
 To just compile the protocol buffers into Java,  run:
 
@@ -61,7 +63,7 @@ To just compile the protocol buffers into Java,  run:
 
 The lein-protobuf plugin automatically hooks into both `lein compile` and `lein run`
 
-TRo compile everything and start the server for the application, in a terminal/powershell window, run:
+To compile everything and start the server for the application, in a terminal/powershell window, run:
 
     lein run 
 
