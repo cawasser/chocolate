@@ -50,17 +50,20 @@
                  [cljsjs/toastr "2.1.2-1"]]
 
   :min-lein-version "2.0.0"
-  
+
   :source-paths ["src/clj" "src/cljs" "src/cljc"]
-  :java-source-paths ["src/java"]
-  :javac-options ["-d" "target/classes"]
   :test-paths ["test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"
   :main ^:skip-aot chocolate.core
 
   :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-kibit "0.1.2"]]
+            [lein-kibit "0.1.2"]
+            [leancloud-lein-protobuf "0.5.4"]]
+
+  :proto-path "resources/proto"
+  :protoc "protoc"
+
   :clean-targets ^{:protect false}
   [:target-path [:cljsbuild :builds :app :compiler :output-dir] [:cljsbuild :builds :app :compiler :output-to]]
   :figwheel
@@ -69,7 +72,7 @@
    :nrepl-port 7002
    :css-dirs ["resources/public/css"]
    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
-  
+
 
   :profiles
   {:uberjar {:omit-source true
@@ -130,7 +133,7 @@
 
 
                   :doo {:build "test"}
-                  :source-paths ["env/dev/clj" "target/%s/classes"]
+                  :source-paths ["env/dev/clj"] ;"target/%s/classes"]
                   :resource-paths ["env/dev/resources"]
                   :repl-options {:init-ns user}
                   :injections [(require 'pjstadig.humane-test-output)
