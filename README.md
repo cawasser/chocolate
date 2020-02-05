@@ -13,7 +13,7 @@ You will need [Leiningen][1] 2.0 or above installed.
 
 [1]: https://github.com/technomancy/leiningen
 
-### Development Setup and COnfiguration
+### Development Setup and Configuration
 
 You will also need to add `dev-config.edn` to the main project folder, containing:
 
@@ -33,12 +33,12 @@ the management console at
 
     localhost:15672
 
-you need to set up the following exchanges:
+You need to set up a vhost called `/main` and add the following exchanges to that vhost:
 
 1. `my-exchange`
 2. `pb-exchange`
 
-and the following queues and bindings:
+Then add the following queues and bindings:
 
 1. `some.queue` bound to `my-exchange`
 2. `person.queue` bound to `pb-exchange`
