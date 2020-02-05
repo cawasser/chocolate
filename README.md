@@ -96,3 +96,8 @@ specifically the `/api/messages` and `/api/publish` routes.
 
 > Remember: `/api/publish` takes a message _id_ as it's only parameter, so understand what content  
 > you want to send before using.
+
+
+## Using the RabbitMQ Console
+
+[link](/docs/working-with-rabbit-console.md)
