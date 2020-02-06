@@ -1,4 +1,4 @@
-(defproject chocolate "0.1.0-SNAPSHOT"
+(defproject chocolate "0.2.0"
 
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
@@ -40,10 +40,17 @@
                  [ring-webjars "0.2.0"]
                  [ring/ring-core "1.8.0"]
                  [ring/ring-defaults "0.3.2"]
-                 [selmer "1.12.18"]]
+                 [selmer "1.12.18"]
+
+                 [nomnom/bunnicula "2.1.0"]
+                 [com.stuartsierra/component "0.4.0"]
+                 [com.google.protobuf/protobuf-java "3.11.1"]
+                 [clojusc/protobuf "3.5.1-v1.1"]
+
+                 [cljsjs/toastr "2.1.2-1"]]
 
   :min-lein-version "2.0.0"
-  
+
   :source-paths ["src/clj" "src/cljs" "src/cljc"]
   :test-paths ["test/clj"]
   :resource-paths ["resources" "target/cljsbuild"]
@@ -51,7 +58,12 @@
   :main ^:skip-aot chocolate.core
 
   :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-kibit "0.1.2"]]
+            [lein-kibit "0.1.2"]
+            [leancloud-lein-protobuf "0.5.4"]]
+
+  :proto-path "resources/proto"
+  :protoc "protoc"
+
   :clean-targets ^{:protect false}
   [:target-path [:cljsbuild :builds :app :compiler :output-dir] [:cljsbuild :builds :app :compiler :output-to]]
   :figwheel
@@ -60,7 +72,7 @@
    :nrepl-port 7002
    :css-dirs ["resources/public/css"]
    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
-  
+
 
   :profiles
   {:uberjar {:omit-source true
@@ -116,12 +128,12 @@
                       :output-to "target/cljsbuild/public/js/app.js"
                       :asset-path "/js/out"
                       :source-map true
-                      :main "chocolate.app"
+                      :main chocolate.core ;"chocolate.app"
                       :pretty-print true}}}}
 
 
                   :doo {:build "test"}
-                  :source-paths ["env/dev/clj"]
+                  :source-paths ["env/dev/clj"] ;"target/%s/classes"]
                   :resource-paths ["env/dev/resources"]
                   :repl-options {:init-ns user}
                   :injections [(require 'pjstadig.humane-test-output)

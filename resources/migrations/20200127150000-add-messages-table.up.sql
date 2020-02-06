@@ -3,4 +3,5 @@ CREATE TABLE messages
  msg_type VARCHAR(200),
  exchange VARCHAR(200),
  queue VARCHAR(200),
+ pb_type VARCHAR(200),
  content VARCHAR(5000));

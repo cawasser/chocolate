@@ -10,9 +10,9 @@
     [chocolate.middleware.formats :as formats]
     [chocolate.middleware.exception :as exception]
     [ring.util.http-response :refer :all]
-    [clojure.java.io :as io]
 
-    [chocolate.db.core :as db]))
+    [chocolate.db.core :as db]
+    [chocolate.message-publisher :as mp]))
 
 (defn service-routes []
   ["/api"
@@ -53,13 +53,23 @@
     {:get {:summary   "return all messages in the database"
            :responses {200 {:body {:messages [{}]}}}
            :handler   (fn [_]
-                        (ok {:messages (db/get-messages)}))}}]])
+                        (ok {:messages (db/get-messages)}))}}]
+
+   ["/publish"
+    {:post {:summary    "publish a message"
+            :responses  {200 {:body {:success boolean? :exchange string?}}}
+            :parameters {:body {:id string?}}
+            :handler    (fn [{{{:keys [id]} :body} :parameters}]
+                          (prn "message " id " published")
+                          (ok (mp/publish-message id)))}}]])
 
 
 
 (comment
   (db/get-messages)
-  (db/get-user {:id "100"})
+  (db/get-user {:id "200"})
+
+  (db/clear-messages!)
 
   (db/create-user! {:id         "200",
                     :first_name "Steve",
@@ -67,16 +77,37 @@
                     :email      "steve@bloom.co",
                     :pass       "123ABc"})
 
-  (db/create-message! {:id       "1"
-                       :msg_type "edn"
-                       :exchange "edn-exchange"
-                       :queue    "edn-queue"
-                       :content  {:user "Chris"}})
-  (db/create-message! {:id "2"
-                       :msg_type "edn"
-                       :exchange "edn-exchange"
-                       :queue "edn-queue"
-                       :content {:user "Steve"}})
+  (do
+    (db/create-message! {:id       "1"
+                         :msg_type "edn"
+                         :exchange "my-exchange"
+                         :queue    "some.queue"
+                         :pb_type  ""
+                         :content  {:user "Chris"}})
+    (db/create-message! {:id       "2"
+                         :msg_type "edn"
+                         :exchange "my-exchange"
+                         :queue    "some.queue"
+                         :pb_type  ""
+                         :content  {:user "Steve"}})
+    (db/create-message! {:id       "3"
+                         :msg_type "pb"
+                         :exchange "pb-exchange"
+                         :queue    "person.queue"
+                         :pb_type  "Person"
+                         :content  {:id 108
+                                    :name "Alice"
+                                    :email "alice@example.com"}})
+    (db/create-message! {:id       "4"
+                         :msg_type "pb"
+                         :exchange "pb-exchange"
+                         :queue    "message.queue"
+                         :pb_type  "Message"
+                         :content  {:sender "Alice"
+                                    :content "Hello from Alice"
+                                    :tags ["hello" "alice" "friends"]}}))
+  (db/get-messages)
+
 
 
   ())
