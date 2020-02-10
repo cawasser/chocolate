@@ -7,7 +7,9 @@
     [chocolate.config :refer [env]]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.tools.logging :as log]
-    [mount.core :as mount])
+    [mount.core :as mount]
+
+    [chocolate.queue.consumer :as qc])
   (:gen-class))
 
 ;; log uncaught exceptions in threads

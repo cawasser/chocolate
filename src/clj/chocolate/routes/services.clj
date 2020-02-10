@@ -55,6 +55,12 @@
            :handler   (fn [_]
                         (ok {:messages (db/get-messages)}))}}]
 
+   ["/consumers"
+    {:get {:summary   "return all consumers in the database"
+           :responses {200 {:body {:consumers [{}]}}}
+           :handler   (fn [_]
+                        (ok {:consumers (db/get-consumers)}))}}]
+
    ["/publish"
     {:post {:summary    "publish a message"
             :responses  {200 {:body {:success boolean? :exchange string?}}}
@@ -109,5 +115,22 @@
   (db/get-messages)
 
 
+  (do
+    (db/create-consumer! {:id       "100"
+                          :msg_type "edn"
+                          :exchange "my-exchange"
+                          :queue    "some.queue"
+                          :pb_type  ""})
+    (db/create-consumer! {:id       "200"
+                          :msg_type "pb"
+                          :exchange "pb-exchange"
+                          :queue    "person.queue"
+                          :pb_type  "Person"})
+    (db/create-consumer! {:id       "300"
+                          :msg_type "pb"
+                          :exchange "pb-exchange"
+                          :queue    "message.queue"
+                          :pb_type  "Message"}))
+  (db/get-consumers)
 
   ())

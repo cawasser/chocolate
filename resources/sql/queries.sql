@@ -59,3 +59,39 @@ DELETE FROM messages
 
 
 
+-- :name create-consumer! :! :n
+-- :doc create "listener" on a given exchange/queue
+INSERT INTO consumers
+(id, msg_type, pb_type, exchange, queue)
+VALUES (:id, :msg_type, :pb_type, :exchange, :queue)
+
+
+-- :name get-consumers :? :*
+-- :doc get all consumers from the consumers table
+SELECT * FROM consumers
+
+
+-- :name get-consumer :? :1
+-- :doc get the consumer with the given :id
+SELECT * FROM consumers
+WHERE id = :id
+
+
+-- :name get-consumers-by-type :? :*
+-- :doc get all theconsumers of a given :type
+SELECT * FROM consumers
+WHERE msg_type = :msg_type
+
+
+-- :name get-consumers-by-pb-type :? :*
+-- :doc get all the consumers of a given :type
+SELECT * FROM consumers
+WHERE pb_type = :pb_type
+
+
+-- :name clear-consumers! :! :*
+-- :doc remove all consumers form the database
+DELETE FROM consumers
+
+
+

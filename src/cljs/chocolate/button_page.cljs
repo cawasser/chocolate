@@ -36,12 +36,40 @@
     (assoc db :messages (:messages messages))))
 
 
-
 (rf/reg-sub
   :messages
   (fn [db [_]]
     (prn ":messages subscription " (:messages db))
     (:messages db)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; consumer management
+;
+
+(rf/reg-event-fx
+  :load-consumers
+  (fn-traced [cofx [_]]
+    {:http-xhrio {:method          :get
+                  :uri             "/api/consumers"
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [:consumers-loaded]
+                  :on-failure      [:common/set-error]}}))
+
+
+(rf/reg-event-db
+  :consumers-loaded
+  (fn-traced [db [_ consumers]]
+    (assoc db :consumers (:consumers consumers))))
+
+
+(rf/reg-sub
+  :consumers
+  (fn [db [_]]
+    (prn ":consumers subscription " (:consumers db))
+    (:consumers db)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -87,13 +115,29 @@
 ;
 
 (defn button-page []
-  (fn []
-    (let [messages @(rf/subscribe [:messages])]
-      [:div.tile.is-ancestor
-       [:div.tile.is-vertical.is-8
-        [:div.tile
-         [:div.tile.is-parent.is-vertical
-          (doall
-            (map (fn [m] [:div.tile.is-child.box
-                          {:on-click #(publish-message m)}
-                          (str m)]) messages))]]]])))
+  (let [messages @(rf/subscribe [:messages])
+        consumers @(rf/subscribe [:consumers])]
+    (fn []
+      [:div.level
+       [:div.level-left {:style {:width "50%"}}
+        [:h3 "Publish:"]
+        [:div.tile.is-ancestor
+         [:div.tile.is-vertical.is-8
+          [:div.tile
+           [:div.tile.is-parent.is-vertical
+            (doall
+              (map (fn [m] ^{:key (:id m)}
+                            [:div.tile.is-child.box
+                             {:on-click #(publish-message m)}
+                             (str m)]) messages))]]]]]
+
+       [:div.level-right {:style {:width "50%"}}
+        [:h3 "Received:"]
+        [:div.tile.is-ancestor
+         [:div.tile.is-vertical.is-8
+          [:div.tile
+           [:div.tile.is-parent.is-vertical
+            (doall
+              (map (fn [m] ^{:key (:id m)}
+                     [:div.tile.is-child.box
+                      (str (:queue m))]) consumers))]]]]]])))

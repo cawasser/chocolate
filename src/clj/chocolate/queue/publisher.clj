@@ -2,7 +2,8 @@
   (:require [com.stuartsierra.component :as component]
             [bunnicula.component.publisher :as publisher]
             [bunnicula.protocol :as protocol]
-            [chocolate.queue.connection :as conn]))
+            [chocolate.queue.connection :as conn]
+            [chocolate.protobuf.encoder :as encoder]))
 
 
 
@@ -66,11 +67,11 @@
    publisher, so you DON'T need to start it manually"
 
   ([exchange msg-type]
-   (let [p (get @publishers exchange)
+   (let [p   (get @publishers exchange)
          typ (if (nil? msg-type) "edn" msg-type)]
      (if (not p)
-       (let [new-p (create-publisher exchange typ)
-             service (create-publisher-service new-p)
+       (let [new-p          (create-publisher exchange typ)
+             service        (create-publisher-service new-p)
              started-server (component/start-system service)]
          (register-publisher exchange started-server)
          started-server)
@@ -164,7 +165,7 @@
             :msg_type "edn" :content {:name "Steve" :value 2319}})
 
   (publish {:exchange "my-exchange" :queue "some.queue"
-            :content {:name "Bob" :value 345667}})
+            :content  {:name "Bob" :value 345667}})
 
   (clear-registry)
 

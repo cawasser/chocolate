@@ -47,8 +47,8 @@
 (rf/reg-event-fx
   :page/init-home
   (fn-traced [_ _]
-    {:dispatch [:fetch-docs]}
-    {:dispatch [:load-messages]}))
+    (rf/dispatch [:load-messages])
+    (rf/dispatch [:load-consumers])))
 
 ;;subscriptions
 
