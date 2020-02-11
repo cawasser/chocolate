@@ -4,6 +4,7 @@
     [chocolate.layout :refer [error-page]]
     [chocolate.routes.home :refer [home-routes]]
     [chocolate.routes.services :refer [service-routes]]
+    [chocolate.routes.websockets]
     [reitit.swagger-ui :as swagger-ui]
     [reitit.ring :as ring]
     [ring.middleware.content-type :refer [wrap-content-type]]

@@ -12,7 +12,8 @@
     [ring.util.http-response :refer :all]
 
     [chocolate.db.core :as db]
-    [chocolate.message-publisher :as mp]))
+    [chocolate.message-publisher :as mp]
+    [chocolate.message-consumer :as mc]))
 
 (defn service-routes []
   ["/api"
@@ -67,7 +68,22 @@
             :parameters {:body {:id string?}}
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
                           (prn "message " id " published")
-                          (ok (mp/publish-message id)))}}]])
+                          (ok (mp/publish-message id)))}}]
+
+   ["/start-consumer"
+    {:post {:summary    "publish a message"
+            :responses  {200 {:body {:success boolean? :exchange string?}}}
+            :parameters {:body {:id string?}}
+            :handler    (fn [{{{:keys [id]} :body} :parameters}]
+                          (prn "starting consumer " id)
+                          (ok (mc/start-consumer id)))}}]])
+
+
+
+(comment
+  (def id "100")
+
+  ())
 
 
 

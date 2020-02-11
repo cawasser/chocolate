@@ -11,6 +11,7 @@
     [reitit.core :as reitit]
     [reitit.frontend.easy :as rfe]
     [clojure.string :as string]
+    [mount.core :as mount]
 
     [chocolate.button-page :as bp])
   (:import goog.History))
@@ -81,6 +82,7 @@
 (defn init! []
   (start-router!)
   (ajax/load-interceptors!)
+  (mount/start)
   (mount-components))
 
 

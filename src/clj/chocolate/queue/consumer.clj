@@ -1,5 +1,6 @@
 (ns chocolate.queue.consumer
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.tools.logging :as log]
+            [com.stuartsierra.component :as component]
             [bunnicula.component.consumer-with-retry :as consumer]
             [bunnicula.component.monitoring :as monitoring]
             [chocolate.queue.connection :as conn]
@@ -84,7 +85,7 @@
 
 (def edn-messages-received (atom []))
 
-(defn- edn-handler
+(defn edn-handler
   [body parsed envelope components]
   (prn "edn-handler " parsed)
   (swap! edn-messages-received conj {:body body :converted parsed})
@@ -114,13 +115,17 @@
   ([exchange queue handler-fn msg-type]
    (let [p   (find-consumer-for exchange queue)
          typ (if (nil? msg-type) "edn" msg-type)]
-     (if (not p)
-       (let [new-p          (create-consumer exchange queue handler-fn typ)
-             service        (create-consumer-service new-p)
-             started-server (component/start-system service)]
-         (register-consumer exchange queue started-server)
-         started-server)
-       p)))
+     (try
+       (if (not p)
+         (let [new-p          (create-consumer exchange queue handler-fn typ)
+               service        (create-consumer-service new-p)
+               started-server (component/start-system service)]
+           (register-consumer exchange queue started-server)
+           started-server)
+         p)
+       (catch Exception e (do
+                            (log/debug "Can't connect consumer: " (.getMessage e))
+                            ())))))
 
   ([exchange queue handler-fn] (create-consumer-for exchange queue handler-fn "edn")))
 
@@ -135,6 +140,12 @@
 (defn stop-and-remove-consumer-for [exchange queue]
   (stop-consumer-for exchange queue)
   (remove-consumer-for exchange queue))
+
+(defn stop-and-remove-all-consumers []
+  (do (map (fn [[k v]]
+             (component/stop-system v)
+             (swap! consumers dissoc k))
+        @consumers)))
 
 
 
@@ -155,6 +166,7 @@
   (def exchange "my-exchange")
   (def queue "some.queue")
   (def typ "edn")
+  (def msg-type "edn")
   (def handler-fn edn-handler)
 
   (find-consumer-for exchange queue)
@@ -202,13 +214,15 @@
   (def typ "pb")
   (def handler-fn (h/pb-handler "Person"))
 
-  (mp/publish-message "3") ; person
-  (mp/publish-message "4") ; message
+  (mp/publish-message "3")                                  ; person
+  (mp/publish-message "4")                                  ; message
 
   (create-consumer-for exchange queue handler-fn typ)
   (create-consumer-for exchange "message.queue" (h/pb-handler "Message") typ)
 
   @h/messages-received
+
+  (stop-and-remove-all-consumers)
 
   ())
 

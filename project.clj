@@ -47,7 +47,9 @@
                  [com.google.protobuf/protobuf-java "3.11.1"]
                  [clojusc/protobuf "3.5.1-v1.1"]
 
-                 [cljsjs/toastr "2.1.2-1"]]
+                 [cljsjs/toastr "2.1.2-1"]
+
+                 [com.taoensso/sente "1.15.0"]]
 
   :min-lein-version "2.0.0"
 

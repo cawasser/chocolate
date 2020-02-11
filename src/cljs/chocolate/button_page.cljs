@@ -88,8 +88,6 @@
                   :on-success      [:message-published true]
                   :on-failure      [:message-published false]}}))
 
-; :dispatch-late expects the time in milliseconds (:ms)
-;
 (rf/reg-event-fx
   :message-published
   (fn-traced [cofx [_ success?]]
@@ -100,13 +98,45 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; publish a message
-;
+(rf/reg-event-fx
+  :start-consumer
+  (fn-traced [cofx [_ id]]
+    {:http-xhrio {:method          :post
+                  :uri             "/api/start-consumer"
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :params          {:id id}
+                  :on-success      [:consumer-started true]
+                  :on-failure      [:consumer-started false]}}))
 
-(defn publish-message [{:keys [id] :as message}]
+(rf/reg-event-fx
+  :consumer-started
+  (fn-traced [cofx [_ success?]]
+    (if success?
+      (js/toastr.success "Started!")
+      (js/toastr.error "Something went wrong..."))
+    {}))
+
+
+
+
+
+(defn publish-message
+  "ask the server to publish a message, using the exchange/queue/etc.
+   data inside the map associated with the id"
+
+  [{:keys [id]}]
   (rf/dispatch [:publish-message id]))
+
+
+(defn start-consumer
+  "ask the server to start a consumer 'listener' using the exchange/queue
+   data inside the map associated with the id"
+
+  [{:keys [id]}]
+  (rf/dispatch [:start-consumer id]))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -115,9 +145,10 @@
 ;
 
 (defn button-page []
-  (let [messages @(rf/subscribe [:messages])
-        consumers @(rf/subscribe [:consumers])]
+  (let [messages (rf/subscribe [:messages])
+        consumers (rf/subscribe [:consumers])]
     (fn []
+      (prn "button-page " (count @messages) " //// " (count @consumers))
       [:div.level
        [:div.level-left {:style {:width "50%"}}
         [:h3 "Publish:"]
@@ -129,7 +160,7 @@
               (map (fn [m] ^{:key (:id m)}
                             [:div.tile.is-child.box
                              {:on-click #(publish-message m)}
-                             (str m)]) messages))]]]]]
+                             (str m)]) @messages))]]]]]
 
        [:div.level-right {:style {:width "50%"}}
         [:h3 "Received:"]
@@ -140,4 +171,5 @@
             (doall
               (map (fn [m] ^{:key (:id m)}
                      [:div.tile.is-child.box
-                      (str (:queue m))]) consumers))]]]]]])))
+                      {:on-click #(start-consumer m)}
+                      (str (:queue m))]) @consumers))]]]]]])))
