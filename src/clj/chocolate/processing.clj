@@ -9,17 +9,9 @@
 ; handler for EDN messages
 ;
 
-(def edn-messages-received (atom []))
-
-
 (defn edn-processing-fn
   [body parsed envelope components]
-  (prn "edn-handler " parsed)
-  (swap! edn-messages-received conj {:body body :converted parsed})
-
-  ; send down the socket(s) to the client(s)
   (ws/send-to-all! parsed)
-
   :ack)
 
 
@@ -40,15 +32,10 @@
 ;
 
 
-(def pb-messages-received (atom []))
-
 (defn pb-processing-fn
   [pb_type body parsed envelope components]
 
-  (prn "pb-handler " (pb-if/decode-content pb_type body))
   (let [decoded (pb-if/decode-content pb_type body)]
-    (swap! pb-messages-received conj {:body body :converted decoded})
-    ; send down the socket(s) to the client(s)
     (ws/send-to-all! decoded))
   :ack)
 
