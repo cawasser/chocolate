@@ -146,30 +146,35 @@
 
 (defn button-page []
   (let [messages (rf/subscribe [:messages])
-        consumers (rf/subscribe [:consumers])]
+        consumers (rf/subscribe [:consumers])
+        messages-received (rf/subscribe [:messages-recevied])]
     (fn []
       (prn "button-page " (count @messages) " //// " (count @consumers))
-      [:div.level
-       [:div.level-left {:style {:width "50%"}}
-        [:h3 "Publish:"]
-        [:div.tile.is-ancestor
-         [:div.tile.is-vertical.is-8
-          [:div.tile
-           [:div.tile.is-parent.is-vertical
-            (doall
-              (map (fn [m] ^{:key (:id m)}
-                            [:div.tile.is-child.box
-                             {:on-click #(publish-message m)}
-                             (str m)]) @messages))]]]]]
+      [:div.container
+       [:div.container
+        [:div.level
+         [:div.level-left {:style {:width "50%"}}
+          [:h3 "Publish:"]
+          [:div.tile.is-ancestor
+           [:div.tile.is-vertical.is-8
+            [:div.tile
+             [:div.tile.is-parent.is-vertical
+              (doall
+                (map (fn [m] ^{:key (:id m)}
+                              [:div.tile.is-child.box
+                               {:on-click #(publish-message m)}
+                               (str m)]) @messages))]]]]]
 
-       [:div.level-right {:style {:width "50%"}}
-        [:h3 "Received:"]
-        [:div.tile.is-ancestor
-         [:div.tile.is-vertical.is-8
-          [:div.tile
-           [:div.tile.is-parent.is-vertical
-            (doall
-              (map (fn [m] ^{:key (:id m)}
-                     [:div.tile.is-child.box
-                      {:on-click #(start-consumer m)}
-                      (str (:queue m))]) @consumers))]]]]]])))
+         [:div.level-right {:style {:width "50%"}}
+          [:h3 "Received:"]
+          [:div.tile.is-ancestor
+           [:div.tile.is-vertical.is-8
+            [:div.tile
+             [:div.tile.is-parent.is-vertical
+              (doall
+                (map (fn [m] ^{:key (:id m)}
+                       [:div.tile.is-child.box
+                        {:on-click #(start-consumer m)}
+                        (str (:queue m))]) @consumers))]]]]]]]
+       [:div.container
+        [:p @messages-received]]])))
