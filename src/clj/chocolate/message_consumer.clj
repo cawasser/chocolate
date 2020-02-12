@@ -42,6 +42,10 @@
 
 
 (comment
+
+  (require '[chocolate.message-publisher :as mp])
+  (mp/publish-message "1")
+
   (start-consumer "100")
 
   (def id "100")
