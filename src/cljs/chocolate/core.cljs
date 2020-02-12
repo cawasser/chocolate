@@ -12,6 +12,7 @@
     [reitit.frontend.easy :as rfe]
     [clojure.string :as string]
     [mount.core :as mount]
+    [chocolate.websockets :as ws]
 
     [chocolate.button-page :as bp])
   (:import goog.History))
@@ -80,9 +81,10 @@
   (r/render [#'page] (.getElementById js/document "app")))
 
 (defn init! []
+  (mount/start)
   (start-router!)
   (ajax/load-interceptors!)
-  (mount/start)
+  (ws/send! [:message/create! "TESTING"])
   (mount-components))
 
 

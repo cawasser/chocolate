@@ -1,16 +1,11 @@
-(ns chocolate.protobuf.handlers
-  (:require [chocolate.protobuf.interface :as pb-if]))
+(ns chocolate.protobuf.handlers)
 
 
 
-(def messages-received (atom []))
 
 (defn pb-handler
-  [pb_type]
-  (fn
-    [body parsed envelope components]
-    (prn "pb-handler " (pb-if/decode-content pb_type body))
-    (swap! messages-received conj {:body body :converted (pb-if/decode-content pb_type body)})
-    :ack))
+  [processing-fn pb_type]
+  (fn [body parsed envelope components]
+    (processing-fn pb_type body parsed envelope components)))
 
 

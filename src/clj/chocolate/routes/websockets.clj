@@ -14,15 +14,21 @@
 
 (mount/defstate socket
   :start (sente/make-channel-socket!
-           (get-sch-adapter) {:user-id-fn (fn [ring-req]
-                                            (get-in ring-req [:params :client-id]))}))
+           (get-sch-adapter)
+           {:user-id-fn (fn [ring-req]
+                          (get-in ring-req [:params :client-id]))}))
 
 
 
 (defn send! [uid message]
+  (prn "send! " message " to " uid)
   ((:send-fn socket) uid message))
 
 
+(defn send-to-all! [message]
+  (prn "publishing " message ", " @(:connected-uids socket))
+  (doseq [uid (:any @(:connected-uids socket))]
+    (send! uid [:message/add message])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -39,13 +45,16 @@
 
 ; TODO: we don't actually receive any messages from the clients using the websockets... or do we?
 (defmethod handle-message :message/create! [{:keys [?data uid] :as message}]
+  (prn "handle :message/create! " ?data)
+
   (let [response (try
                    ;(msg/save-message! ?data)
-                   (assoc ?data :timestamp (java.util.Date.)) (catch Exception e
-                                                                (let [{id :error/error-id errors :errors} (ex-data e)]
-                                                                  (case id :validation {:errors errors} ;;else
-                                                                           {:errors
-                                                                            {:server-error ["Failed to save message!"]}}))))]
+                   (assoc ?data :timestamp (java.util.Date.))
+                   (catch Exception e
+                     (let [{id :error/error-id errors :errors} (ex-data e)]
+                       (case id :validation {:errors errors} ;;else
+                                {:errors
+                                 {:server-error ["Failed to save message!"]}}))))]
     (if (:errors response)
       ; send error to "everyone"
       (send! uid [:message/creation-errors response])

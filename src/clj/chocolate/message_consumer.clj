@@ -3,18 +3,15 @@
             [chocolate.queue.consumer :as qc]
             [chocolate.protobuf.person]
             [chocolate.protobuf.message]
-            [chocolate.protobuf.handlers :as h]))
+            [chocolate.protobuf.handlers :as h]
+            [chocolate.processing :as proc]))
 
 
 (defn- call-consumer
-  ([exchange queue handler-fn msg_type]
-   (if (nil? (qc/create-consumer-for exchange queue handler-fn msg_type))
-     false
-     true))
-  ([exchange queue handler-fn]
-   (if (nil? (qc/create-consumer-for exchange queue handler-fn))
-     false
-     true)))
+  [exchange queue handler-fn msg_type]
+  (if (nil? (qc/create-consumer-for exchange queue handler-fn msg_type))
+    false
+    true))
 
 (defn start-consumer
   "starts a listener using the configuration data in the database with the given id
@@ -33,8 +30,17 @@
       (condp
         = msg_type
 
-        "edn" (assoc ret :success (call-consumer exchange queue qc/edn-handler msg_type))
-        "pb" (assoc ret :success (call-consumer exchange queue (h/pb-handler pb_type) msg_type))))
+        "edn" (assoc ret :success (call-consumer
+                                    exchange
+                                    queue
+                                    (proc/edn-handler proc/edn-processing-fn)
+                                    msg_type))
+
+        "pb" (assoc ret :success (call-consumer
+                                   exchange
+                                   queue
+                                   (h/pb-handler proc/pb-processing-fn pb_type)
+                                   msg_type))))
 
     {:success false :id id}))
 
@@ -44,6 +50,7 @@
 (comment
 
   (require '[chocolate.message-publisher :as mp])
+
   (mp/publish-message "1")
 
   (start-consumer "100")
@@ -55,7 +62,9 @@
   (def msg_type "edn")
   (def ret {})
 
-  @qc/edn-messages-received
+  @proc/edn-messages-received
+
+  @proc/pb-messages-received
 
   (qc/stop-and-remove-all-consumers)
   @qc/consumers

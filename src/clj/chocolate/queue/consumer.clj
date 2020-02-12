@@ -80,22 +80,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-; default handler for EDN messages
-;
-
-(def edn-messages-received (atom []))
-
-(defn edn-handler
-  [body parsed envelope components]
-  (prn "edn-handler " parsed)
-  (swap! edn-messages-received conj {:body body :converted parsed})
-  :ack)
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
 ; PUBLIC INTERFACE
 
 (defn create-consumer-for
@@ -161,6 +145,7 @@
 
   (require '[chocolate.queue.publisher :as pub])
   (require '[chocolate.message-publisher :as mp])
+  (require)
 
 
   (def exchange "my-exchange")

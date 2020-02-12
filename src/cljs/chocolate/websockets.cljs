@@ -8,10 +8,13 @@
 
 
 (defstate socket
-  :start (sente/make-channel-socket!
-           "/ws"
-           (.-value (.getElementById js/document "token")) {:type :auto
-                                                            :wrap-recv-evs? false}))
+  :start (do
+           (prn "starting websocket " js/csrfToken)
+           (sente/make-channel-socket!
+             "/ws"
+             js/csrfToken
+             {:type :auto
+              :wrap-recv-evs? false})))
 
 
 ; TODO: we don't send any messages to the server this way... or do we?
