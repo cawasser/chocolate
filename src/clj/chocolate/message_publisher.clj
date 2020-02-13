@@ -2,9 +2,7 @@
   (:require [chocolate.db.core :as db]
             [chocolate.queue.publisher :as qp]
             [chocolate.protobuf.interface :refer [encode-content]]
-            [chocolate.protobuf.encoder :as encoder]
-            [chocolate.protobuf.person]
-            [chocolate.protobuf.message]))
+            [chocolate.protobuf.encoder :as encoder]))
 
 
 

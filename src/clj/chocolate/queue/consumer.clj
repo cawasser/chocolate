@@ -4,9 +4,7 @@
             [bunnicula.component.consumer-with-retry :as consumer]
             [bunnicula.component.monitoring :as monitoring]
             [chocolate.queue.connection :as conn]
-            [chocolate.protobuf.handlers :as h]
-            [chocolate.protobuf.message]
-            [chocolate.protobuf.person]))
+            [chocolate.protobuf.handlers :as h]))
 
 
 

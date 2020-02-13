@@ -1,8 +1,6 @@
 (ns chocolate.message-consumer
   (:require [chocolate.db.core :as db]
             [chocolate.queue.consumer :as qc]
-            [chocolate.protobuf.person]
-            [chocolate.protobuf.message]
             [chocolate.protobuf.handlers :as h]
             [chocolate.processing :as proc]))
 
