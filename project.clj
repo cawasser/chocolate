@@ -1,4 +1,4 @@
-(defproject chocolate "0.2.0"
+(defproject chocolate "0.3.0"
 
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
@@ -17,7 +17,8 @@
                  [day8.re-frame/http-fx "0.1.6"]
                  [expound "0.8.3"]
                  [funcool/struct "1.4.0"]
-                 [luminus-jetty "0.1.7"]
+                 ;[luminus-jetty "0.1.7"]
+                 [luminus-http-kit "0.1.6"]
                  [luminus-migrations "0.6.6"]
                  [luminus-transit "0.1.2"]
                  [luminus/ring-ttl-session "0.3.3"]
@@ -47,7 +48,9 @@
                  [com.google.protobuf/protobuf-java "3.11.1"]
                  [clojusc/protobuf "3.5.1-v1.1"]
 
-                 [cljsjs/toastr "2.1.2-1"]]
+                 [cljsjs/toastr "2.1.2-1"]
+
+                 [com.taoensso/sente "1.15.0"]]
 
   :min-lein-version "2.0.0"
 

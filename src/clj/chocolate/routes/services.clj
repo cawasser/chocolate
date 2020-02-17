@@ -12,7 +12,10 @@
     [ring.util.http-response :refer :all]
 
     [chocolate.db.core :as db]
-    [chocolate.message-publisher :as mp]))
+    [chocolate.message-publisher :as mp]
+    [chocolate.message-consumer :as mc]))
+
+
 
 (defn service-routes []
   ["/api"
@@ -55,13 +58,34 @@
            :handler   (fn [_]
                         (ok {:messages (db/get-messages)}))}}]
 
+   ["/consumers"
+    {:get {:summary   "return all consumers in the database"
+           :responses {200 {:body {:consumers [{}]}}}
+           :handler   (fn [_]
+                        (ok {:consumers (db/get-consumers)}))}}]
+
    ["/publish"
     {:post {:summary    "publish a message"
             :responses  {200 {:body {:success boolean? :exchange string?}}}
             :parameters {:body {:id string?}}
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
                           (prn "message " id " published")
-                          (ok (mp/publish-message id)))}}]])
+                          (ok (mp/publish-message id)))}}]
+
+   ["/start-consumer"
+    {:post {:summary    "publish a message"
+            :responses  {200 {:body {:success boolean? :exchange string?}}}
+            :parameters {:body {:id string?}}
+            :handler    (fn [{{{:keys [id]} :body} :parameters}]
+                          (prn "starting consumer " id)
+                          (ok (mc/start-consumer id)))}}]])
+
+
+
+(comment
+  (def id "100")
+
+  ())
 
 
 
@@ -109,5 +133,22 @@
   (db/get-messages)
 
 
+  (do
+    (db/create-consumer! {:id       "100"
+                          :msg_type "edn"
+                          :exchange "my-exchange"
+                          :queue    "some.queue"
+                          :pb_type  ""})
+    (db/create-consumer! {:id       "200"
+                          :msg_type "pb"
+                          :exchange "pb-exchange"
+                          :queue    "person.queue"
+                          :pb_type  "Person"})
+    (db/create-consumer! {:id       "300"
+                          :msg_type "pb"
+                          :exchange "pb-exchange"
+                          :queue    "message.queue"
+                          :pb_type  "Message"}))
+  (db/get-consumers)
 
   ())

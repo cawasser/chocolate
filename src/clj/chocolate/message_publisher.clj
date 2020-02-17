@@ -2,9 +2,14 @@
   (:require [chocolate.db.core :as db]
             [chocolate.queue.publisher :as qp]
             [chocolate.protobuf.interface :refer [encode-content]]
-            [chocolate.protobuf.encoder]))
+            [chocolate.protobuf.encoder :as encoder]))
 
 
+
+(defn encode-edn [msg]
+  (assoc msg :content (->> msg
+                        (:content)
+                        (encoder/preprocess-content))))
 
 
 
@@ -24,7 +29,7 @@
         (condp
           = (:msg_type msg)
 
-          "edn" (assoc ret :success (qp/publish msg))
+          "edn" (assoc ret :success (qp/publish (encode-edn msg)))
           "pb" (assoc ret :success (qp/publish (encode-content msg))))))
     {:success false :id id}))
 
@@ -60,5 +65,20 @@
   (publish-message "1")
   (publish-message "3")
 
+
+  ())
+
+
+(comment
+  (def one {:id "1",
+            :msg_type "edn",
+            :exchange "my-exchange",
+            :queue "some.queue",
+            :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"})
+  (def content (:content one))
+
+  (qp/publish (encode-edn one))
+
+  (publish-message "1")
 
   ())

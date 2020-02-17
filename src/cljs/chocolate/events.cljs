@@ -47,10 +47,24 @@
 (rf/reg-event-fx
   :page/init-home
   (fn-traced [_ _]
-    {:dispatch [:fetch-docs]}
-    {:dispatch [:load-messages]}))
+    (rf/dispatch [:load-messages])
+    (rf/dispatch [:load-consumers])))
+
+
+(rf/reg-event-db
+  :message/add
+  (fn-traced [db [_ message]]
+    (assoc db :messages-recevied (conj (:messages-recevied db) message))))
+
+
 
 ;;subscriptions
+
+
+(rf/reg-sub
+  :messages-recevied
+  (fn [db _]
+    (-> db :messages-recevied)))
 
 (rf/reg-sub
   :route

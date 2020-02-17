@@ -36,12 +36,40 @@
     (assoc db :messages (:messages messages))))
 
 
-
 (rf/reg-sub
   :messages
   (fn [db [_]]
     (prn ":messages subscription " (:messages db))
     (:messages db)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; consumer management
+;
+
+(rf/reg-event-fx
+  :load-consumers
+  (fn-traced [cofx [_]]
+    {:http-xhrio {:method          :get
+                  :uri             "/api/consumers"
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [:consumers-loaded]
+                  :on-failure      [:common/set-error]}}))
+
+
+(rf/reg-event-db
+  :consumers-loaded
+  (fn-traced [db [_ consumers]]
+    (assoc db :consumers (:consumers consumers))))
+
+
+(rf/reg-sub
+  :consumers
+  (fn [db [_]]
+    (prn ":consumers subscription " (:consumers db))
+    (:consumers db)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,8 +88,6 @@
                   :on-success      [:message-published true]
                   :on-failure      [:message-published false]}}))
 
-; :dispatch-late expects the time in milliseconds (:ms)
-;
 (rf/reg-event-fx
   :message-published
   (fn-traced [cofx [_ success?]]
@@ -72,13 +98,45 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; publish a message
-;
+(rf/reg-event-fx
+  :start-consumer
+  (fn-traced [cofx [_ id]]
+    {:http-xhrio {:method          :post
+                  :uri             "/api/start-consumer"
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :params          {:id id}
+                  :on-success      [:consumer-started true]
+                  :on-failure      [:consumer-started false]}}))
 
-(defn publish-message [{:keys [id] :as message}]
+(rf/reg-event-fx
+  :consumer-started
+  (fn-traced [cofx [_ success?]]
+    (if success?
+      (js/toastr.success "Started!")
+      (js/toastr.error "Something went wrong..."))
+    {}))
+
+
+
+
+
+(defn publish-message
+  "ask the server to publish a message, using the exchange/queue/etc.
+   data inside the map associated with the id"
+
+  [{:keys [id]}]
   (rf/dispatch [:publish-message id]))
+
+
+(defn start-consumer
+  "ask the server to start a consumer 'listener' using the exchange/queue
+   data inside the map associated with the id"
+
+  [{:keys [id]}]
+  (rf/dispatch [:start-consumer id]))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -87,13 +145,36 @@
 ;
 
 (defn button-page []
-  (fn []
-    (let [messages @(rf/subscribe [:messages])]
-      [:div.tile.is-ancestor
-       [:div.tile.is-vertical.is-8
-        [:div.tile
-         [:div.tile.is-parent.is-vertical
-          (doall
-            (map (fn [m] [:div.tile.is-child.box
-                          {:on-click #(publish-message m)}
-                          (str m)]) messages))]]]])))
+  (let [messages (rf/subscribe [:messages])
+        consumers (rf/subscribe [:consumers])
+        messages-received (rf/subscribe [:messages-recevied])]
+    (fn []
+      (prn "button-page " (count @messages) " //// " (count @consumers))
+      [:div.container
+       [:div.container
+        [:div.level
+         [:div.level-left {:style {:width "50%"}}
+          [:h3 "Publish:"]
+          [:div.tile.is-ancestor
+           [:div.tile.is-vertical.is-8
+            [:div.tile
+             [:div.tile.is-parent.is-vertical
+              (doall
+                (map (fn [m] ^{:key (:id m)}
+                              [:div.tile.is-child.box
+                               {:on-click #(publish-message m)}
+                               (str m)]) @messages))]]]]]
+
+         [:div.level-right {:style {:width "50%"}}
+          [:h3 "Received:"]
+          [:div.tile.is-ancestor
+           [:div.tile.is-vertical.is-8
+            [:div.tile
+             [:div.tile.is-parent.is-vertical
+              (doall
+                (map (fn [m] ^{:key (:id m)}
+                       [:div.tile.is-child.box
+                        {:on-click #(start-consumer m)}
+                        (str (:queue m))]) @consumers))]]]]]]]
+       [:div.container
+        [:p @messages-received]]])))

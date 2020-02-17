@@ -4,28 +4,13 @@
   (:import [com.example.tutorial Example Example$Person Example$Message]))
 
 
-(defn- preprocess-content
+(defn preprocess-content
   "convert the string returned from the database into an EDN data structure for encoding.
 
    c - a string value that should be converted into EDN"
 
   [content]
   (clojure.core/read-string content))
-
-
-
-(defmethod pb-if/encode-content "Person" [msg]
-  (prn "Person encoder")
-  (assoc msg :content (-> (protobuf/create Example$Person (preprocess-content (:content msg)))
-                          (protobuf/->bytes))))
-
-
-
-(defmethod pb-if/encode-content "Message" [msg]
-  (prn "Message encoder")
-  (assoc msg :content (-> (protobuf/create Example$Message (preprocess-content (:content msg)))
-                        (protobuf/->bytes))))
-
 
 
 
@@ -49,8 +34,33 @@
 
   (preprocess-content (:content person))
 
-  (pb-if/encode-content person)
+  (->> {:id 108, :name "Alice", :email "alice@example.com"}
+    (protobuf/create Example$Person)
+    (protobuf/->bytes))
 
+  (->> "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"
+    (preprocess-content)
+    (protobuf/create Example$Person)
+    (protobuf/->bytes))
+
+  (->> person
+    (:content)
+    (preprocess-content)
+    (protobuf/create Example$Person)
+    (protobuf/->bytes))
+
+  (def person-msg (->> person
+                    (:content)
+                    (preprocess-content)
+                    (protobuf/create Example$Person)
+                    (protobuf/->bytes)))
+  (pb-if/decode-content "Person" person-msg)
+
+  (pb-if/encode-content person)
   (pb-if/encode-content message)
+
+  (preprocess-content (:content person))
+
+  (pb-if/decode-content "Message" (:content (pb-if/encode-content  message)))
 
   ())
