@@ -72,7 +72,7 @@
   :figwheel
   {:http-server-root "public"
    :server-logfile "log/figwheel-logfile.log"
-   :nrepl-port 7002
+   :nrepl-port 7702
    :css-dirs ["resources/public/css"]
    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
