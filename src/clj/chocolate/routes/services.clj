@@ -10,7 +10,7 @@
     [chocolate.middleware.formats :as formats]
     [chocolate.middleware.exception :as exception]
     [ring.util.http-response :refer :all]
-
+    [clojure.tools.logging :as log]
     [chocolate.db.core :as db]
     [chocolate.message-publisher :as mp]
     [chocolate.message-consumer :as mc]))
@@ -69,7 +69,7 @@
             :responses  {200 {:body {:success boolean? :exchange string?}}}
             :parameters {:body {:id string?}}
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
-                          (prn "message " id " published")
+                          (log/info "message " id " published")
                           (ok (mp/publish-message id)))}}]
 
    ["/start-consumer"
@@ -77,7 +77,7 @@
             :responses  {200 {:body {:success boolean? :exchange string?}}}
             :parameters {:body {:id string?}}
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
-                          (prn "starting consumer " id)
+                          (log/info "starting consumer " id)
                           (ok (mc/start-consumer id)))}}]])
 
 
