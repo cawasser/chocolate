@@ -101,3 +101,52 @@ specifically the `/api/messages` and `/api/publish` routes.
 ## Using the RabbitMQ Console
 
 [link](/docs/working-with-rabbit-console.md)
+
+## Building the Uberjar
+Compiling the app into an uberjar allows it to be ran standalone locally* or within a docker container
+
+Build the uberjar with
+
+    lein uberjar
+
+> Note: the uberjar process will take around 3-5 minutes to complete
+>
+> *NOTE: currently running the uberjar outside a docker container with
+> `java -jar \target\uberjar\chocolate.jar` is not supported due to db configuration
+
+## Deploying with Docker
+> Recommended way to run is with **docker-compose** (below).  
+>The chocolate docker container by itself is not configured to talk to a locally running RabbitMQ instance
+
+First build the chocolate uberjar
+
+    lein uberjar
+
+To build the chocolate container run:
+    
+    docker build -t chocodoc .
+
+To run the container:
+
+    docker run -p 3000:3000 chocodoc
+
+
+## Deploying with Docker-Compose
+The app can also be run using docker compose, which runs the chocolate container and RabbitMQ containers simultaneously.
+
+First make sure you've built the chocolate uberjar: `lein uberjar`
+
+To build the chocolate container run:
+    
+    docker build -t chocodoc .
+
+> Note: the built image must be `-t` tagged `chocodoc` for the compose file to find it
+
+The RabbitMQ container is pulled automatically and doesnt need to be built beforehand
+
+To spin up the docker-compose containers run:
+
+    docker-compose up
+    
+> Note: `ctrl-c` a few times will kill the running compose, and to completely clean and remove the containers, run `docker-compose down`
+

@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  rabbitmq:
+    container_name: some-rabbit
+    ports:
+      - '15672:15672'
+    image: rabbitmq:3-management
+    networks:
+      - my-net
+
+  chocodoc:
+    container_name: choco_doc
+    ports:
+      - '3000:3000'
+      - '7000:7000'
+    image: chocodoc
+    environment:
+      - RABBIT_HOST="rabbitmq"
+      - RABBIT_PORT=5672
+      - RABBIT_USERNAME="guest"
+      - RABBIT_PASSWORD="guest"
+      - RABBIT_VHOST="/main"
+    networks:
+      - my-net
+
+networks:
+  my-net:
