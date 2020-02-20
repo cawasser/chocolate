@@ -111,8 +111,25 @@ Build the uberjar with
 
 > Note: the uberjar process will take around 3-5 minutes to complete
 >
-> *NOTE: currently running the uberjar outside a docker container with
-> `java -jar \target\uberjar\chocolate.jar` is not supported due to db configuration
+For the uberjar to run correctly it needs environment variables to be set in the terminal its ran from.
+In powershell, use the following commands to set the env variables needed:
+
+     $Env:DATABASE_URL="jdbc:sqlite:chocolate_dev.db”
+     $Env:RABBIT_HOST="127.0.0.1"
+     $Env:RABBIT_VHOST="/main"
+     $Env:RABBIT_PORT=5672
+     $Env:RABBIT_USERNAME="guest"
+     $Env:RABBIT_PASSWORD="guest"
+     
+You can confirm your variables have been set correctly by running this command:
+
+         Get-ChildItem Env:
+
+Once all environment variables have been set, run the uberjar by executing this command from the root directory:
+
+    java -jar .\target\uberjar\chocolate.jar
+    
+It will take over your terminal for as long as its running.  Hit `localhost:3000` to see the page.
 
 ## Deploying with Docker
 > Recommended way to run is with **docker-compose** (below).  
