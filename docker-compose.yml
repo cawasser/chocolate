@@ -5,7 +5,7 @@ services:
     container_name: some-rabbit
     ports:
       - '15672:15672'
-    image: rabbitmq:3-management
+    image: my-rabbit
     networks:
       - my-net
 
