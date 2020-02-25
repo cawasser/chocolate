@@ -123,7 +123,7 @@
          [:p (:protoc @protoc)]]
 
         [:section.modal-card-body ; content-edn
-         [input-field :input.input :textarea "content" content-edn]]
+         [input-field :textarea.textarea :text "content" content-edn]]
          ;[:p (if (ready?) "ready" "NOT")]]
 
         [:footer.modal-card-foot
