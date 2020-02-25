@@ -26,18 +26,18 @@
   (fn-traced [_ [_ url-key params query]]
     {:navigate-fx! [url-key params query]}))
 
-(rf/reg-event-db
-  :set-docs
-  (fn-traced [db [_ docs]]
-    (assoc db :docs docs)))
-
-(rf/reg-event-fx
-  :fetch-docs
-  (fn-traced [_ _]
-    {:http-xhrio {:method          :get
-                  :uri             "/docs"
-                  :response-format (ajax/raw-response-format)
-                  :on-success       [:set-docs]}}))
+;(rf/reg-event-db
+;  :set-docs
+;  (fn-traced [db [_ docs]]
+;    (assoc db :docs docs)))
+;
+;(rf/reg-event-fx
+;  :fetch-docs
+;  (fn-traced [_ _]
+;    {:http-xhrio {:method          :get
+;                  :uri             "/docs"
+;                  :response-format (ajax/raw-response-format)
+;                  :on-success       [:set-docs]}}))
 
 (rf/reg-event-db
   :common/set-error
@@ -48,13 +48,14 @@
   :page/init-home
   (fn-traced [_ _]
     (rf/dispatch [:load-messages])
-    (rf/dispatch [:load-consumers])))
+    (rf/dispatch [:load-consumers])
+    (rf/dispatch [:load-protobuf-types])))
 
 
 (rf/reg-event-db
   :message/add
   (fn-traced [db [_ message]]
-    (assoc db :messages-recevied (conj (:messages-recevied db) message))))
+    (assoc db :messages-received (conj (:messages-received db) message))))
 
 
 
@@ -62,9 +63,9 @@
 
 
 (rf/reg-sub
-  :messages-recevied
+  :messages-received
   (fn [db _]
-    (-> db :messages-recevied)))
+    (-> db :messages-received)))
 
 (rf/reg-sub
   :route
@@ -83,11 +84,11 @@
   (fn [route _]
     (-> route :data :view)))
 
-(rf/reg-sub
-  :docs
-  (fn [db _]
-    (:docs db)))
-
+;(rf/reg-sub
+;  :docs
+;  (fn [db _]
+;    (:docs db)))
+;
 (rf/reg-sub
   :common/error
   (fn [db _]

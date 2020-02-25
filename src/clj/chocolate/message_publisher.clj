@@ -12,6 +12,21 @@
                         (encoder/preprocess-content))))
 
 
+(defn publish-message-raw
+  "published the given message, where the caller has specified everything"
+
+  [{:keys [exchange queue msg_type] :as msg}]
+  (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
+    (do
+      (prn "publish-message-raw for " exchange " / " queue
+        " //// (msg) " msg)
+
+      (condp
+        = (:msg_type msg)
+
+        "edn" (assoc ret :success (qp/publish (encode-edn msg)))
+        "pb" (assoc ret :success (qp/publish (encode-content msg)))))))
+
 
 (defn publish-message
   " publishes the stock message associated in the database with the given id
@@ -20,17 +35,8 @@
    about the message: the exchange, the queue, and the message encoding type, are taken form
    the database"
   [id]
-  (if-let [{:keys [exchange queue msg_type] :as msg} (db/get-message {:id id})]
-    (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
-      (do
-        ;(prn "publish-message for " id
-        ;  " //// (msg) " msg)
-
-        (condp
-          = (:msg_type msg)
-
-          "edn" (assoc ret :success (qp/publish (encode-edn msg)))
-          "pb" (assoc ret :success (qp/publish (encode-content msg))))))
+  (if-let [msg (db/get-message {:id id})]
+    (publish-message-raw msg)
     {:success false :id id}))
 
 

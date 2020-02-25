@@ -8,8 +8,8 @@
     [chocolate.events]
     [clojure.string :as string]
     [ajax.core :as ajax]
-
-    [cljsjs.toastr]))
+    [cljsjs.toastr]
+    [chocolate.flexible-protobuf-modal :as modal]))
 
 
 
@@ -70,6 +70,28 @@
   (fn [db [_]]
     (prn ":consumers subscription " (:consumers db))
     (:consumers db)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; protobuf-types management
+;
+
+(rf/reg-event-fx
+  :load-protobuf-types
+  (fn-traced [cofx [_]]
+    {:http-xhrio {:method          :get
+                  :uri             "/api/protobuf-types"
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [:protobuf-types-loaded]
+                  :on-failure      [:common/set-error]}}))
+
+
+(rf/reg-event-db
+  :protobuf-types-loaded
+  (fn-traced [db [_ pb-types]]
+    (assoc db :protobuf-types (:protobuf-types pb-types))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -147,10 +169,15 @@
 (defn button-page []
   (let [messages (rf/subscribe [:messages])
         consumers (rf/subscribe [:consumers])
-        messages-received (rf/subscribe [:messages-recevied])]
+        messages-received (rf/subscribe [:messages-received])
+        flex-buf-active (r/atom false)]
     (fn []
       (prn "button-page " (count @messages) " //// " (count @consumers))
       [:div.container
+
+       [modal/modal flex-buf-active] ; modal panel for dynamically creating protobuf messages to send
+
+       [:button.button.is-warning {:on-click #(reset! flex-buf-active true)} "Flexible-protobuf"]
        [:div.container
         [:div.level
          [:div.level-left {:style {:width "50%"}}

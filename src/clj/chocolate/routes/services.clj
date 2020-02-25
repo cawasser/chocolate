@@ -13,7 +13,8 @@
 
     [chocolate.db.core :as db]
     [chocolate.message-publisher :as mp]
-    [chocolate.message-consumer :as mc]))
+    [chocolate.message-consumer :as mc]
+    [chocolate.routes.edn-utils :as e]))
 
 
 
@@ -64,6 +65,12 @@
            :handler   (fn [_]
                         (ok {:consumers (db/get-consumers)}))}}]
 
+   ["/protobuf-types"
+    {:get {:summary    "return all the protobuf-types"
+           :responses  {200 {:body {:protobuf-types {}}}}
+           :handler    (fn [_]
+                         (ok {:protobuf-types (e/load-edn "resources/edn/protobuf-types.edn")}))}}]
+
    ["/publish"
     {:post {:summary    "publish a message"
             :responses  {200 {:body {:success boolean? :exchange string?}}}
@@ -71,6 +78,16 @@
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
                           (prn "message " id " published")
                           (ok (mp/publish-message id)))}}]
+
+   ["/publish-raw"
+    {:post {:summary    "publish a message"
+            :responses  {200 {:body {:success boolean? :exchange string?}}}
+            :parameters {:body {:exchange string? :queue string?
+                                :msg_type string? :pb_type string?
+                                :content string?}}
+            :handler    (fn [{{{:keys [exchange] :as msg} :body} :parameters}]
+                          (prn "raw message " msg " published to " exchange)
+                          (ok (mp/publish-message-raw msg)))}}]
 
    ["/start-consumer"
     {:post {:summary    "publish a message"

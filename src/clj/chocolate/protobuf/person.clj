@@ -28,12 +28,12 @@
 
 
 (comment
-  (def person {:id "3",}
-             :msg_type "pb",
-             :exchange "pb-exchange",
-             :queue "person.queue",
-             :pb_type "Person",
-             :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}")
+  (def person {:id "3",
+               :msg_type "pb",
+               :exchange "pb-exchange",
+               :queue "person.queue",
+               :pb_type "Person",
+               :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"})
 
   (pb-if/decode-content "Person" (:content (pb-if/encode-content person)))
 

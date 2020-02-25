@@ -1,0 +1,4 @@
+{"Person" {:file-name "proto/person.proto"
+           :protoc "message Person {\n  required int32  id    = 1;\n  required string name  = 2;\n  optional string email = 3;\n  repeated string likes = 4;\n}\n"}
+ "Message" {:file-name "proto/person.proto"
+            :protoc "message Message {\n  required string sender  = 1;\n  required string content = 2;\n  repeated string tags    = 3;\n}\n"}}
