@@ -172,11 +172,11 @@
   (pub/publish {:exchange "my-exchange" :queue "some.queue"
                 :msg_type "edn" :content {:name "Dave" :value 2187}})
 
-  (create-consumer-for "my-exchange" "some.queue" edn-handler)
+  (create-consumer-for "my-exchange" "some.queue" proc/edn-handler)
 
   (mp/publish-message "1")
 
-  @edn-messages-received
+  @proc/edn-messages-received
   (reset! edn-messages-received [])
 
   (stop-and-remove-consumer-for exchange queue)

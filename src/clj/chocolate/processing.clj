@@ -7,6 +7,9 @@
             [chocolate.protobuf.message]))
 
 
+(defonce edn-messages-received
+         (atom []))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -15,6 +18,7 @@
 
 (defn edn-processing-fn
   [body parsed envelope components]
+  (swap! edn-messages-received conj parsed)
   (ws/send-to-all! parsed)
   :ack)
 
