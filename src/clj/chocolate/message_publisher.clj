@@ -2,30 +2,22 @@
   (:require [chocolate.db.core :as db]
             [chocolate.queue.publisher :as qp]
             [chocolate.protobuf.interface :as pb]
-            [chocolate.protobuf.encoder :as encoder]
             [chocolate.protobuf.encoder :as pbe]))
-
-
-(defn encode-edn [msg]
-  (assoc msg :content (->> msg
-                        (:content)
-                        (encoder/preprocess-content))))
 
 
 (defn publish-message-raw
   "published the given message, where the caller has specified everything"
 
   [{:keys [exchange queue msg_type] :as msg}]
+  (prn "publish-message-raw for " exchange " / " queue
+       " //// (msg) " msg)
+
   (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
-    (do
-      (prn "publish-message-raw for " exchange " / " queue
-        " //// (msg) " msg)
+    (condp
+      = (:msg_type msg)
 
-      (condp
-        = (:msg_type msg)
-
-        "edn" (assoc ret :success (qp/publish (encode-edn msg)))
-        "pb" (assoc ret :success (qp/publish (pb/encode-content msg)))))))
+      "edn" (assoc ret :success (qp/publish msg))
+      "pb" (assoc ret :success (qp/publish (pb/encode-content msg))))))
 
 
 (defn publish-message
@@ -86,6 +78,12 @@
             :queue "some.queue",
             :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"})
   (def content (:content one))
+
+  (def id "1")
+  (def msg {:id "1", :msg_type "edn",
+            :exchange "my-exchange", :queue "some.queue", :pb_type "",
+            :content {:user "Chris"}})
+
 
   (qp/publish (encode-edn one))
 

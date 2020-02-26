@@ -26,19 +26,6 @@
   (fn-traced [_ [_ url-key params query]]
     {:navigate-fx! [url-key params query]}))
 
-;(rf/reg-event-db
-;  :set-docs
-;  (fn-traced [db [_ docs]]
-;    (assoc db :docs docs)))
-;
-;(rf/reg-event-fx
-;  :fetch-docs
-;  (fn-traced [_ _]
-;    {:http-xhrio {:method          :get
-;                  :uri             "/docs"
-;                  :response-format (ajax/raw-response-format)
-;                  :on-success       [:set-docs]}}))
-
 (rf/reg-event-db
   :common/set-error
   (fn-traced [db [_ error]]
@@ -54,8 +41,22 @@
 
 (rf/reg-event-db
   :message/add
-  (fn-traced [db [_ message]]
-    (assoc db :messages-received (conj (:messages-received db) message))))
+  (fn-traced
+    [db [_ {:keys [queue content] :as message}]]
+    (prn ":message/add " queue "/" content)
+    (cond
+
+      (= queue "EDN") (do
+                        (prn "EDN message")
+                        (assoc db :edn-messages-received (conj (:edn-messages-received db) content)))
+
+      (= queue "Person") (do
+                           (prn "Person message")
+                           (assoc db :person-messages-received (conj (:person-messages-received db) content)))
+
+      (= queue "Message") (do
+                            (prn "Message message")
+                            (assoc db :message-messages-received (conj (:message-messages-received db) content))))))
 
 
 
@@ -63,9 +64,19 @@
 
 
 (rf/reg-sub
-  :messages-received
+  :edn-messages-received
   (fn [db _]
-    (-> db :messages-received)))
+    (-> db :edn-messages-received)))
+
+(rf/reg-sub
+  :person-messages-received
+  (fn [db _]
+    (-> db :person-messages-received)))
+
+(rf/reg-sub
+  :message-messages-received
+  (fn [db _]
+    (-> db :message-messages-received)))
 
 (rf/reg-sub
   :route
@@ -84,11 +95,6 @@
   (fn [route _]
     (-> route :data :view)))
 
-;(rf/reg-sub
-;  :docs
-;  (fn [db _]
-;    (:docs db)))
-;
 (rf/reg-sub
   :common/error
   (fn [db _]

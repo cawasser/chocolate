@@ -39,7 +39,7 @@
 (rf/reg-sub
   :messages
   (fn [db [_]]
-    (prn ":messages subscription " (:messages db))
+    ;(prn ":messages subscription " (:messages db))
     (:messages db)))
 
 
@@ -68,7 +68,7 @@
 (rf/reg-sub
   :consumers
   (fn [db [_]]
-    (prn ":consumers subscription " (:consumers db))
+    ;(prn ":consumers subscription " (:consumers db))
     (:consumers db)))
 
 
@@ -169,10 +169,12 @@
 (defn button-page []
   (let [messages (rf/subscribe [:messages])
         consumers (rf/subscribe [:consumers])
-        messages-received (rf/subscribe [:messages-received])
+        edn-messages-received (rf/subscribe [:edn-messages-received])
+        person-messages-received (rf/subscribe [:person-messages-received])
+        messages-messages-received (rf/subscribe [:message-messages-received])
         flex-buf-active (r/atom false)]
     (fn []
-      (prn "button-page " (count @messages) " //// " (count @consumers))
+      ;(prn "button-page " (count @messages) " //// " (count @consumers))
       [:div.container
 
        [modal/modal flex-buf-active] ; modal panel for dynamically creating protobuf messages to send
@@ -203,5 +205,8 @@
                        [:div.tile.is-child.box
                         {:on-click #(start-consumer m)}
                         (str (:queue m))]) @consumers))]]]]]]]
+
        [:div.container
-        [:p @messages-received]]])))
+        [:p (str "EDN: " @edn-messages-received)]
+        [:p (str "Prsn: " @person-messages-received)]
+        [:p (str "Msg: " @messages-messages-received)]]])))

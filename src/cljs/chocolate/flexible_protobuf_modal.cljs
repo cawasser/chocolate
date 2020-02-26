@@ -18,7 +18,7 @@
   :publish-message-raw
 
   (fn-traced [cofx [_ message]]
-    (prn ":publish-message-raw " message)
+    ;(prn ":publish-message-raw " message)
     {:http-xhrio {:method          :post
                   :uri             "/api/publish-raw"
                   :format          (ajax/json-request-format)
@@ -32,14 +32,14 @@
 (rf/reg-sub
   :protobuf-types
   (fn [db [_]]
-    (prn ":protobuf-types subscription " (:protobuf-types db))
+    ;(prn ":protobuf-types subscription " (:protobuf-types db))
     (keys (:protobuf-types db))))
 
 
 (rf/reg-sub
   :selected-protoc
   (fn [db [_]]
-    (prn ":protobuf-types subscription " (:protobuf-types db))
+    ;(prn ":protobuf-types subscription " (:protobuf-types db))
     (keys (:protobuf-types db))))
 
 
@@ -73,7 +73,7 @@
     [:select {:on-change #(rf/dispatch-sync [message (-> % .-target .-value)])}
      (for [[idx i] (map-indexed vector items)]
        (do
-         (prn idx " / " i " / " (name i))
+         ;(prn idx " / " i " / " (name i))
          ^{:key idx}[:option {:value i} (name i)]))]))
 
   ;(let [is-active (r/atom false)]
@@ -106,7 +106,7 @@
                   (not (empty? @queue-name))
                   (not (empty? @content-edn)))]
     (fn []
-      (prn "protobuf-types " @protobuf-types)
+      ;(prn "protobuf-types " @protobuf-types)
 
       [:div.modal (if @is-active {:class "is-active"})
        [:div.modal-background]
