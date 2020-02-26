@@ -9,21 +9,22 @@ _fig. 1_
 
 Key parts of this interface are:
 
-Yellow button labeled "Flexible protobuf" which wil be discussed later.
+- Yellow button labeled "Flexible protobuf" which wil be discussed later.
 
-2 columns of *large* buttons. The buttons on the left are for publishing statically defined message. The buttons
+- 2 columns of *large* buttons. The buttons on the left are for publishing statically defined message. The buttons
 on the right start consumers ("listeners" or "subscribers") to specifc queues.
 
 ![screenshot 2](../screenshots/ui-flexible-protobuf-messages.png)
 _fig. 2_
 
-Along the bottom (see fig. 2), are a number of text area, one per "Received" button. As messages are received form the  
-a queue, the contents will be appended ot the contents of the corresponding text block.
+Along the bottom (see fig. 2), are a number of text area, one per "Received" button. As messages are received from  
+a queue, the contents will be appended to the contents of the corresponding text block.
 
 
-Clicking on a "Publish:" button (left-hand column) will cause the corresponding content to be published. Clicking on
-a "Received:" button starts the consumer. Any messages published ot each queue will be reflected in the appropriate list at the bottom (see fig 2.)
+- Clicking on a "Publish:" button (left-hand column) will cause the corresponding content to be published.
 
+- Clicking on a "Received:" button starts the consumer. Any messages published to each queue will be reflected in the
+- appropriate list at the bottom (see fig 2.)
 
 
 
@@ -40,13 +41,17 @@ Filling out the various field let you create a custom message to be published to
 _fig. 4_
 
 
-> Note: There is absolutely NO error checking on this modal, so if you mak any mistakes (typos, incorrect or missing parameters,
-> etc.) the modal will NOT help you out. User Beware!
+> Note: There is absolutely NO error checking on this modal, so if you make any mistakes (typos, incorrect or missing parameters,
+> etc.) the modal will NOT help you out. User Be Careful!
 
 
 
 ### RabbitMQ Console
 
-You can also look at the RabbitMQ console to see the message traffic and even examine the messages themselves.
+If you prefer, you can also look at the RabbitMQ console to see the message traffic and even examine the messages themselves.
+
+> Note: if you have any consumers running they will likely grab messages published to their queues so quickly that
+> the console, which only updates every few seconds, can't keep up. It's best to use the console when you DON'T start any
+> consumers.
 
 
