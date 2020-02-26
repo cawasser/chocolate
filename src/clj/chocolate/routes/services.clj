@@ -14,7 +14,8 @@
     [chocolate.db.core :as db]
     [chocolate.message-publisher :as mp]
     [chocolate.message-consumer :as mc]
-    [chocolate.routes.edn-utils :as e]))
+    [chocolate.routes.edn-utils :as e]
+    [chocolate.protobuf.encoder :as pbe]))
 
 
 
@@ -84,10 +85,10 @@
             :responses  {200 {:body {:success boolean? :exchange string?}}}
             :parameters {:body {:exchange string? :queue string?
                                 :msg_type string? :pb_type string?
-                                :content string?}}
+                                :content  string?}}
             :handler    (fn [{{{:keys [exchange] :as msg} :body} :parameters}]
                           (prn "raw message " msg " published to " exchange)
-                          (ok (mp/publish-message-raw msg)))}}]
+                          (ok (mp/publish-message-raw (pbe/preprocess-message msg))))}}]
 
    ["/start-consumer"
     {:post {:summary    "publish a message"
