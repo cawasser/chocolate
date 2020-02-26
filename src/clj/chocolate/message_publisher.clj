@@ -1,9 +1,9 @@
 (ns chocolate.message-publisher
   (:require [chocolate.db.core :as db]
             [chocolate.queue.publisher :as qp]
-            [chocolate.protobuf.interface :refer [encode-content]]
-            [chocolate.protobuf.encoder :as encoder]))
-
+            [chocolate.protobuf.interface :as pb]
+            [chocolate.protobuf.encoder :as encoder]
+            [chocolate.protobuf.encoder :as pbe]))
 
 
 (defn encode-edn [msg]
@@ -25,7 +25,7 @@
         = (:msg_type msg)
 
         "edn" (assoc ret :success (qp/publish (encode-edn msg)))
-        "pb" (assoc ret :success (qp/publish (encode-content msg)))))))
+        "pb" (assoc ret :success (qp/publish (pb/encode-content msg)))))))
 
 
 (defn publish-message
@@ -36,7 +36,9 @@
    the database"
   [id]
   (if-let [msg (db/get-message {:id id})]
-    (publish-message-raw msg)
+    (-> msg
+        (pbe/preprocess-message)
+        (publish-message-raw))
     {:success false :id id}))
 
 
@@ -62,11 +64,13 @@
                 :pb_type "Message",
                 :content "{:sender \"Alice\", :content \"Hello from Alice\", :tags [\"hello\" \"alice\" \"friends\"]}"})
 
-  (encode-content person)
-  (encode-content (db/get-message {:id "3"}))
+  (chocolate.protobuf.interface/encode-content (pbe/preprocess-message person))
+  (chocolate.protobuf.interface/encode-content (pbe/preprocess-message (db/get-message {:id "3"})))
 
-  (qp/publish (encode-content person))
-  (qp/publish (encode-content (db/get-message {:id "3"})))
+  (qp/publish (chocolate.protobuf.interface/encode-content
+                (pbe/preprocess-message person)))
+  (qp/publish (chocolate.protobuf.interface/encode-content
+                (pbe/preprocess-message (db/get-message {:id "3"}))))
 
   (publish-message "1")
   (publish-message "3")

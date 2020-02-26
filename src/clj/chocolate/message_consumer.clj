@@ -51,13 +51,13 @@
 
   (mp/publish-message "1")
 
-  (start-consumer "100")
+  (start-consumer "200")
 
   (def id "100")
   (def exchange "my-exchange")
   (def queue "some.queue")
   (def pb_type "Person")
-  (def msg_type "edn")
+  (def msg_type "pb")
   (def ret {})
 
   @proc/edn-messages-received
@@ -92,9 +92,10 @@
     = msg_type
 
     "edn" (assoc ret :success
-            (qc/create-consumer-for exchange queue qc/edn-handler msg_type))
+            (qc/create-consumer-for exchange queue proc/edn-handler msg_type))
     "pb" (assoc ret :success
-           (qc/create-consumer-for exchange queue (h/pb-handler pb_type) msg_type)))
+           (qc/create-consumer-for
+             exchange queue (h/pb-handler proc/pb-processing-fn pb_type) msg_type)))
 
   (if-let [{:keys [exchange queue pb_type msg_type]} (db/get-consumer {:id id})]
     (let [ret {:exchange exchange :queue queue :msg-type msg_type}]

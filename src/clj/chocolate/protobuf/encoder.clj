@@ -1,6 +1,6 @@
 (ns chocolate.protobuf.encoder
-  (:require [protobuf.core :as protobuf]
-            [chocolate.protobuf.interface :as pb-if])
+  (:require [protobuf.core :as protobuf])
+            ;[chocolate.protobuf.interface :as pb-if])
   (:import [com.example.tutorial Example Example$Person Example$Message]))
 
 
@@ -12,6 +12,14 @@
   [content]
   (clojure.core/read-string content))
 
+
+(defn preprocess-message
+  "convert the string returned from the database into an EDN data structure for encoding.
+
+   c - a string value that should be converted into EDN"
+
+  [message]
+  (assoc message :content (preprocess-content (:content message))))
 
 
 (comment
@@ -33,6 +41,7 @@
   (clojure.core/read-string (:content person))
 
   (preprocess-content (:content person))
+  (preprocess-message person)
 
   (->> {:id 108, :name "Alice", :email "alice@example.com"}
     (protobuf/create Example$Person)

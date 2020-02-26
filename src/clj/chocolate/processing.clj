@@ -1,10 +1,10 @@
 (ns chocolate.processing
   (:require [chocolate.protobuf.interface :as pb-if]
-            [chocolate.routes.websockets :as ws]
+            [chocolate.routes.websockets :as ws]))
 
             ; just to be sure they are compiled
-            [chocolate.protobuf.person]
-            [chocolate.protobuf.message]))
+            ;[chocolate.protobuf.person]
+            ;[chocolate.protobuf.message]))
 
 
 
