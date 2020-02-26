@@ -1,10 +1,7 @@
 (ns chocolate.processing
   (:require [chocolate.protobuf.interface :as pb-if]
+            [chocolate.message-publisher :as pub]
             [chocolate.routes.websockets :as ws]))
-
-            ; just to be sure they are compiled
-            ;[chocolate.protobuf.person]
-            ;[chocolate.protobuf.message]))
 
 
 
@@ -15,7 +12,7 @@
 
 (defn edn-processing-fn
   [body parsed envelope components]
-  (ws/send-to-all! parsed)
+  (ws/send-to-all! (assoc {} :content parsed :queue "EDN"))
   :ack)
 
 
@@ -23,6 +20,7 @@
 (defn edn-handler
   [processing-fn]
   (fn [body parsed envelope components]
+    (prn "edn-handler " parsed)
     (processing-fn body parsed envelope components)))
 
 
@@ -40,7 +38,14 @@
   [pb_type body parsed envelope components]
 
   (let [decoded (pb-if/decode-content pb_type body)]
-    (ws/send-to-all! decoded))
+
+    ; if this is a "Message", then republish onto the "EDN" queue (some.queue)
+    (if (= pb_type "Message")
+      (pub/publish-message-raw
+        {:exchange "my-exchange" :queue "some.queue"
+         :msg_type "edn" :content decoded}))
+
+    (ws/send-to-all! (assoc {} :content decoded :queue pb_type)))
   :ack)
 
 
