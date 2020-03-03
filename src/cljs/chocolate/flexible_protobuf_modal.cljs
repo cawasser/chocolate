@@ -163,6 +163,7 @@
          [:textarea.textarea {:value @protoc}]]
 
         [:section.modal-card-body ; content-edn
+         [:p.subtitle.is-6 {:style {:color "lightgray"}} "Message Content:"]
          [input-field :textarea.textarea :text "content" content-edn]]
          ;[:p (if (ready?) "ready" "NOT")]]
 
@@ -195,7 +196,7 @@
        [:div.modal-background]
        [:div.modal-card
         [:header.modal-card-head
-         [:p.modal-card-title "Specify Protobuf Message"]
+         [:p.modal-card-title "Specify Protobuf Consumer Config"]
          [:button.button.is-warning
           {:on-click #(rf/dispatch [:load-protobuf-types])}
           "Refresh"]]
@@ -209,6 +210,7 @@
          [:textarea.textarea {:value @protoc}]]
 
         [:section.modal-card-body ; content-edn
+         [:p.subtitle.is-6 {:style {:color "lightgray"}} "\"dummy\" data for protbuf type:"]
          [input-field :textarea.textarea :text "dummy" content-edn]]
         ;[:p (if (ready?) "ready" "NOT")]]
 

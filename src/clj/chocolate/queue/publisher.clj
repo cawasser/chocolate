@@ -36,7 +36,7 @@
     :publisher (component/using
                  publisher
                  [:rmq-connection])
-    :rmq-connection conn/connection))
+    :rmq-connection (conn/connection)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

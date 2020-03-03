@@ -4,6 +4,9 @@
             [chocolate.routes.websockets :as ws]))
 
 
+(defonce edn-messages-received
+         (atom []))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -13,6 +16,7 @@
 (defn edn-processing-fn
   [body parsed envelope components]
   (ws/send-to-all! (assoc {} :content parsed :queue "EDN"))
+  (swap! edn-messages-received conj parsed)
   :ack)
 
 

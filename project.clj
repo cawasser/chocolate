@@ -80,7 +80,7 @@
 
   :profiles
   {:uberjar {:omit-source true
-             :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+             :prep-tasks ["protobuf" "compile" ["cljsbuild" "once" "min"]]
              :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]
              :cljsbuild{:builds
               {:min
