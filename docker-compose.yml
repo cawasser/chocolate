@@ -9,13 +9,15 @@ services:
     networks:
       - my-net
 
-  vanilladoc:
-    container_name: vanilla_doc
+  chocodoc:
+    container_name: choco_doc
+    depends_on:
+      - rabbitmq
     ports:
       - '3000:3000'
       - '5000:5000'
       - '7000:7000'
-    image: vanilla_doc
+    image: choco_doc
     environment:
       - RABBIT_HOST="rabbitmq"
       - RABBIT_PORT=5672
