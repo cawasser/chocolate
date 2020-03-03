@@ -9,10 +9,12 @@ _fig. 1_
 
 Key parts of this interface are:
 
-- Yellow button labeled "Flexible protobuf" which wil be discussed later.
+- A yellow button labeled "Flexible-publisher" which wil be discussed later.
+
+- - Another yellow button labeled "FLexible-consumer" which will also be discussed later.
 
 - 2 columns of *large* buttons. The buttons on the left are for publishing statically defined message. The buttons
-on the right start consumers ("listeners" or "subscribers") to specifc queues.
+on the right start consumers ("listeners" or "subscribers") to specific queues.
 
 ![screenshot 2](../screenshots/ui-flexible-protobuf-messages.png)
 _fig. 2_
@@ -28,20 +30,30 @@ a queue, the contents will be appended to the contents of the corresponding text
 
 
 
-### The "Flexible protobuf" Button
+### The "Flexible-publisher" Button
 
 Clicking on the yellow button opens a modal:
 
-![screenshot 3](../screenshots/ui-flexible-protobuf-modal.png)
-_fig. 3_
-
 Filling out the various field let you create a custom message to be published to any exchange/queue combination you like.
 
-![screenshot 4](../screenshots/ui-flexible-protobuf-modal-filled.png)
-_fig. 4_
+![screenshot 3](../screenshots/ui-flexible-protobuf-modal-filled.png)
+_fig. 3_
 
 
 > Note: There is absolutely NO error checking on this modal, so if you make any mistakes (typos, incorrect or missing parameters,
+> etc.) the modal will NOT help you out. User Be Careful!
+
+
+### The "Flexible-consumer" Button
+
+Clicking on the other yellow button opens a modal to configure a protocol buffer-specific consumer. Filling out  
+the various field let you define the configuration for a consumer to any exchange/queue/protobuf-type you want.
+
+![screenshot 4](../screenshots/ui-flexible-protobuf-consumer-filled.png)
+_fig. 4_
+
+
+> Note: Again, there is absolutely NO error checking on this modal, so if you make any mistakes (typos, incorrect or missing parameters,
 > etc.) the modal will NOT help you out. User Be Careful!
 
 
@@ -52,6 +64,6 @@ If you prefer, you can also look at the RabbitMQ console to see the message traf
 
 > Note: if you have any consumers running they will likely grab messages published to their queues so quickly that
 > the console, which only updates every few seconds, can't keep up. It's best to use the console when you DON'T start any
-> consumers.
+> consumers, so the messages just sit around while you look them over.
 
 
