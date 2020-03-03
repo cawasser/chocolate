@@ -17,7 +17,7 @@
 (defn start-consumer-raw
   [exchange queue msg_type pb_type dummy]
 
-  (prn "start-consumer-raw " msg_type " //// " dummy)
+  (prn "start-consumer-raw " exchange ", " queue ", " msg_type ", " pb_type ", " dummy)
 
   (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
     (condp
@@ -32,7 +32,7 @@
      "pb" (assoc ret :success (call-consumer
                                exchange
                                queue
-                               (h/pb-handler proc/pb-processing-fn pb_type (edn/read-string dummy))
+                               (h/pb-handler proc/pb-processing-fn pb_type (if (string? dummy) (clojure.edn/read-string dummy) dummy))
                                msg_type)))))
 
 
@@ -46,9 +46,9 @@
   [id]
 
   (if-let [{:keys [exchange queue pb_type msg_type dummy]} (db/get-consumer {:id id})]
-    (let [d (if (nil? dummy) (utils/get-from pb_type :dummy) (edn/read-string dummy))]
+    (let [d (if (nil? dummy) (utils/get-from pb_type :dummy) dummy)]
      (do
-       (prn "start-consumer " exchange ", " queue ", " pb_type ", " msg_type ", " dummy ", " d)
+       (prn "start-consumer " exchange ", " queue ", " msg_type ", " pb_type ", " dummy ", " d)
        (start-consumer-raw exchange queue msg_type pb_type d)))
 
     {:success false :id id}))
