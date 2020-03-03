@@ -111,25 +111,25 @@ Build the uberjar with
 
 > Note: the uberjar process will take around 3-5 minutes to complete
 >
-For the uberjar to run correctly it needs environment variables to be set in the terminal its ran from.
-In powershell, use the following commands to set the env variables needed:
+>
+To run the uberjar locally you first must set your environment variables
 
-     $Env:DATABASE_URL="jdbc:sqlite:chocolate_dev.db”
-     $Env:RABBIT_HOST="127.0.0.1"
-     $Env:RABBIT_VHOST="/main"
-     $Env:RABBIT_PORT=5672
-     $Env:RABBIT_USERNAME="guest"
-     $Env:RABBIT_PASSWORD="guest"
-     
-You can confirm your variables have been set correctly by running this command:
+If you are on **Windows** run;
 
-         Get-ChildItem Env:
+    .\dev\Invoke-CmdScript.ps1 .\dev\envVars.cmd
 
-Once all environment variables have been set, run the uberjar by executing this command from the root directory:
+After the script executes, run `Get-ChildItem Env:` to verify environment variables are set, then run
 
-    java -jar .\target\uberjar\chocolate.jar
+    java -jar target/uberjar/chocolate.jar
+
+which will run the application from the uberjar. go to http://localhost:3000
+
+If you are on **Mac OS / Linux** run;
+
+    ./dev/run.uberjar.sh
     
-It will take over your terminal for as long as its running.  Hit `localhost:3000` to see the page.
+which will set env variables and run the uberjar.  go to http://locahost:3000
+
 
 ## Deploying with Docker
 > Recommended way to run is with **docker-compose** (below).  
@@ -153,13 +153,17 @@ The app can also be run using docker compose, which runs the chocolate container
 
 First make sure you've built the chocolate uberjar: `lein uberjar`
 
-To build the chocolate container run:
+To build the chocolate image run:
     
     docker build -t chocodoc .
 
 > Note: the built image must be `-t` tagged `chocodoc` for the compose file to find it
 
-The RabbitMQ container is pulled automatically and doesnt need to be built beforehand
+Next build the rabbitMQ image with:
+
+    docker build -t my-rabbit .\rabbitmq\.
+    
+> Note: built image must be -t tagged `my-rabbit` for compose to find it
 
 To spin up the docker-compose containers run:
 

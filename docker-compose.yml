@@ -15,7 +15,6 @@ services:
       - rabbitmq
     ports:
       - '3000:3000'
-      - '5000:5000'
       - '7000:7000'
     image: choco_doc
     environment:
