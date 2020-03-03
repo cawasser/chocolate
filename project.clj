@@ -51,6 +51,7 @@
                  [cljsjs/toastr "2.1.2-1"]
 
                  [com.taoensso/sente "1.15.0"]]
+                 ;[cljsjs/codemirror "5.44.0-1"]]
 
   :min-lein-version "2.0.0"
 
@@ -72,7 +73,7 @@
   :figwheel
   {:http-server-root "public"
    :server-logfile "log/figwheel-logfile.log"
-   :nrepl-port 7002
+   :nrepl-port 7702
    :css-dirs ["resources/public/css"]
    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 

@@ -26,4 +26,6 @@
   (def pb-type "Person")
   (def item :class)
 
+  (reset! pb-type-reg {})
+
   ())

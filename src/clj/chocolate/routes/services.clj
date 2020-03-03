@@ -15,7 +15,8 @@
     [chocolate.message-publisher :as mp]
     [chocolate.message-consumer :as mc]
     [chocolate.routes.edn-utils :as e]
-    [chocolate.protobuf.encoder :as pbe]))
+    [chocolate.protobuf.encoder :as pbe]
+    [clojure.tools.logging :as log]))
 
 
 
@@ -72,6 +73,14 @@
            :handler    (fn [_]
                          (ok {:protobuf-types (e/load-edn "resources/edn/protobuf-types.edn")}))}}]
 
+   ["/get-protoc"
+    {:post {:summary    "return the content of the selected protobuf type"
+            :responses  {200 {:body {}}};:selected-protoc ""}}}
+            :parameters {:body {:protoc string?}}
+            :handler    (fn [{{{:keys [protoc]} :body} :parameters}]
+                          (log/info "/get-protoc " protoc)
+                          (ok {:selected-protoc (e/load-file protoc)}))}}]
+
    ["/publish"
     {:post {:summary    "publish a message"
             :responses  {200 {:body {:success boolean? :exchange string?}}}
@@ -91,17 +100,28 @@
                           (ok (mp/publish-message-raw (pbe/preprocess-message msg))))}}]
 
    ["/start-consumer"
-    {:post {:summary    "publish a message"
+    {:post {:summary    "start a flexible fixed consumer"
             :responses  {200 {:body {:success boolean? :exchange string?}}}
             :parameters {:body {:id string?}}
             :handler    (fn [{{{:keys [id]} :body} :parameters}]
                           (prn "starting consumer " id)
-                          (ok (mc/start-consumer id)))}}]])
+                          (ok (mc/start-consumer id)))}}]
+
+   ["/start-flex-consumer"
+    {:post {:summary    "start a flexible protobuf consumer"
+            :responses  {200 {:body {:success boolean? :exchange string?}}}
+            :parameters {:body {:exchange string? :queue string?
+                                :pb-type string? :dummy string?}}
+            :handler    (fn [{{{:keys [exchange queue pb-type dummy]} :body} :parameters}]
+                          (prn "starting consumer " queue)
+                          (ok (mc/start-consumer-raw exchange queue "pb" pb-type dummy)))}}]])
 
 
 
 (comment
   (def id "100")
+
+  (def protoc "resources/proto/person.proto")
 
   ())
 

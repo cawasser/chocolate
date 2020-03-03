@@ -6,13 +6,35 @@
 
 ; directly from https://clojuredocs.org/clojure.edn/read)
 (defn load-edn
+    "Load edn from an io/reader source (filename or io/resource)."
+    [source]
+    (try
+      (with-open [r (io/reader source)]
+        (edn/read (java.io.PushbackReader. r)))
+
+      (catch java.io.IOException e
+        {:error "Couldn't open '%s': %s\n" source (.getMessage e)})
+      (catch RuntimeException e
+        {:error "Error parsing edn file '%s': %s\n" source (.getMessage e)})))
+
+
+(defn load-file
   "Load edn from an io/reader source (filename or io/resource)."
   [source]
   (try
-    (with-open [r (io/reader source)]
-      (edn/read (java.io.PushbackReader. r)))
+    (-> source
+        slurp)
+        ;(clojure.string/replace "\r" "\n"))
 
     (catch java.io.IOException e
       {:error "Couldn't open '%s': %s\n" source (.getMessage e)})
     (catch RuntimeException e
       {:error "Error parsing edn file '%s': %s\n" source (.getMessage e)})))
+
+
+
+(comment
+  (load-file "resources/proto/person.proto")
+
+
+  ())

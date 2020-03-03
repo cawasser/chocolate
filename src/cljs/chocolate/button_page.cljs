@@ -172,14 +172,16 @@
         edn-messages-received (rf/subscribe [:edn-messages-received])
         person-messages-received (rf/subscribe [:person-messages-received])
         messages-messages-received (rf/subscribe [:message-messages-received])
-        flex-buf-active (r/atom false)]
+        flex-pub-active (r/atom false)
+        flex-con-active (r/atom false)]
     (fn []
       ;(prn "button-page " (count @messages) " //// " (count @consumers))
       [:div.container
 
-       [modal/modal flex-buf-active] ; modal panel for dynamically creating protobuf messages to send
+       [modal/pub-modal flex-pub-active] ; modal panel for dynamically creating protobuf messages to send
+;       [modal/con-modal flex-con-active] ; modal panel for dynamically creating protobuf messages to send
 
-       [:button.button.is-warning {:on-click #(reset! flex-buf-active true)} "Flexible-protobuf"]
+       [:button.button.is-warning {:on-click #(reset! flex-pub-active true)} "Flexible-publisher"]
        [:div.container
         [:div.level
          [:div.level-left {:style {:width "50%"}}
@@ -195,16 +197,17 @@
                                (str m)]) @messages))]]]]]
 
          [:div.level-right {:style {:width "50%"}}
-          [:h3 "Received:"]
-          [:div.tile.is-ancestor
-           [:div.tile.is-vertical.is-8
-            [:div.tile
-             [:div.tile.is-parent.is-vertical
-              (doall
-                (map (fn [m] ^{:key (:id m)}
-                       [:div.tile.is-child.box
-                        {:on-click #(start-consumer m)}
-                        (str (:queue m))]) @consumers))]]]]]]]
+          [:button.button.is-warning {:on-click #(reset! flex-con-active true)} "Flexible-consumer"]
+          [:h3 "Received:"
+            [:div.tile.is-ancestor
+             [:div.tile.is-vertical.is-8
+              [:div.tile
+               [:div.tile.is-parent.is-vertical
+                (doall
+                  (map (fn [m] ^{:key (:id m)}
+                         [:div.tile.is-child.box
+                          {:on-click #(start-consumer m)}
+                          (str (:queue m))]) @consumers))]]]]]]]]
 
        [:div.container
         [:p (str "EDN: " @edn-messages-received)]

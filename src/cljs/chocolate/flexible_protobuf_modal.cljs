@@ -3,30 +3,66 @@
             [re-frame.core :as rf]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [ajax.core :as ajax]))
+            ;[chocolate.code-editor :as editor]))
 
 
 
 (rf/reg-event-db
   :selected-protobuf-type
-  (fn-traced [db [_ new-val]]
+  (fn-traced
+    [db [_ new-val]]
+
+    (rf/dispatch [:get-protoc {:protoc (:protoc (get (:protobuf-types db) (keyword new-val)))}])
     (assoc db
       :selected-protobuf-type new-val
-      :selected-protoc (get-in db [:protobuf-types (keyword new-val)] {}))))
+      :selected-item (get-in db [:protobuf-types (keyword new-val)] {}))))
+
+
+(rf/reg-event-db
+  :selected-protoc
+  (fn-traced
+    [db [_ new-val]]
+
+    (assoc db
+      :selected-protoc (:selected-protoc new-val))))
+
 
 
 (rf/reg-event-fx
-  :publish-message-raw
-
+  :start-flex-consumer
   (fn-traced [cofx [_ message]]
-    ;(prn ":publish-message-raw " message)
-    {:http-xhrio {:method          :post
-                  :uri             "/api/publish-raw"
-                  :format          (ajax/json-request-format)
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :params          message
-                  :on-success      [:message-published true]
-                  :on-failure      [:message-published false]}}))
+             ;(prn "::start-consumer " message)
+             {:http-xhrio {:method          :post
+                           :uri             "/api/start-consumer"
+                           :format          (ajax/json-request-format)
+                           :response-format (ajax/json-response-format {:keywords? true})
+                           :params          message
+                           :on-success      [:consumer-started true]
+                           :on-failure      [:consumer-started false]}}))
 
+(rf/reg-event-fx
+  :publish-message-raw
+  (fn-traced [cofx [_ message]]
+             ;(prn ":publish-message-raw " message)
+             {:http-xhrio {:method          :post
+                           :uri             "/api/publish-raw"
+                           :format          (ajax/json-request-format)
+                           :response-format (ajax/json-response-format {:keywords? true})
+                           :params          message
+                           :on-success      [:message-published true]
+                           :on-failure      [:message-published false]}}))
+
+(rf/reg-event-fx
+  :get-protoc
+  (fn-traced [cofx [_ type]]
+             (prn ":get-protoc" type)
+             {:http-xhrio {:method          :post
+                           :uri             "/api/get-protoc"
+                           :format          (ajax/json-request-format)
+                           :response-format (ajax/json-response-format {:keywords? true})
+                           :params          type
+                           :on-success      [:selected-protoc]
+                           :on-failure      [:message-published false]}}))
 
 
 (rf/reg-sub
@@ -37,7 +73,7 @@
 
 
 (rf/reg-sub
-  :selected-protoc
+  :selected-item
   (fn [db [_]]
     ;(prn ":protobuf-types subscription " (:protobuf-types db))
     (keys (:protobuf-types db))))
@@ -52,6 +88,7 @@
 (rf/reg-sub
   :selected-protoc
   (fn [db _]
+    (prn "SUB :selected-protoc")
     (:selected-protoc db)))
 
 
@@ -67,14 +104,14 @@
 
 (defn drop-down
 
-  [items message]
+  [items selected message]
 
   (if (< 0 (count items))
     [:select {:on-change #(rf/dispatch-sync [message (-> % .-target .-value)])}
      (for [[idx i] (map-indexed vector items)]
        (do
-         ;(prn idx " / " i " / " (name i))
-         ^{:key idx}[:option {:value i} (name i)]))]))
+         (prn idx " / " i " / " (name i))
+         ^{:key idx}[:option {:value i :selected (if (= selected i) true false)} (name i)]))]))
 
   ;(let [is-active (r/atom false)]
   ;  (fn []
@@ -97,7 +134,7 @@
 (defonce content-edn (r/atom ""))
 
 
-(defn modal [is-active]
+(defn pub-modal [is-active]
   (let [protobuf-types (rf/subscribe [:protobuf-types])
         selected-protobuf-type (rf/subscribe [:selected-protobuf-type])
         protoc (rf/subscribe [:selected-protoc])
@@ -112,15 +149,18 @@
        [:div.modal-background]
        [:div.modal-card
         [:header.modal-card-head
-         [:p.modal-card-title "Specify Protobuf Message"]]
+         [:p.modal-card-title "Specify Protobuf Message"]
+         [:button.button.is-warning
+          {:on-click #(rf/dispatch [:load-protobuf-types])}
+          "Refresh"]]
 
         [:section.modal-card-body ; exchange/queue
          [input-field :input.input :text "exchange" exchange-name]
          [input-field :input.input :text "queue" queue-name]]
 
         [:section.modal-card-body ; pb-type & protoc
-         [drop-down @protobuf-types :selected-protobuf-type]
-         [:p (:protoc @protoc)]]
+         [drop-down @protobuf-types @selected-protobuf-type :selected-protobuf-type]
+         [:textarea.textarea {:value @protoc}]]
 
         [:section.modal-card-body ; content-edn
          [input-field :textarea.textarea :text "content" content-edn]]
@@ -134,5 +174,51 @@
                                                                  :msg_type "pb"
                                                                  :pb_type @selected-protobuf-type
                                                                  :content @content-edn}])}
+          "Publish"]
+         [:button.button {:on-click #(reset! is-active false)} "Cancel"]]]])))
+
+
+
+
+(defn con-modal [is-active]
+  (let [protobuf-types (rf/subscribe [:protobuf-types])
+        selected-protobuf-type (rf/subscribe [:selected-protobuf-type])
+        protoc (rf/subscribe [:selected-protoc])
+        ready? #(and
+                  (not (empty? @exchange-name))
+                  (not (empty? @queue-name))
+                  (not (empty? @content-edn)))]
+    (fn []
+      ;(prn "protobuf-types " @protobuf-types)
+
+      [:div.modal (if @is-active {:class "is-active"})
+       [:div.modal-background]
+       [:div.modal-card
+        [:header.modal-card-head
+         [:p.modal-card-title "Specify Protobuf Message"]
+         [:button.button.is-warning
+          {:on-click #(rf/dispatch [:load-protobuf-types])}
+          "Refresh"]]
+
+        [:section.modal-card-body ; exchange/queue
+         [input-field :input.input :text "exchange" exchange-name]
+         [input-field :input.input :text "queue" queue-name]]
+
+        [:section.modal-card-body ; pb-type & protoc
+         [drop-down @protobuf-types @selected-protobuf-type :selected-protobuf-type]
+         [:textarea.textarea {:value @protoc}]]
+
+        [:section.modal-card-body ; content-edn
+         [input-field :textarea.textarea :text "content" content-edn]]
+        ;[:p (if (ready?) "ready" "NOT")]]
+
+        [:footer.modal-card-foot
+         [:button.button.is-success {:disabled (not (ready?))
+                                     :on-click #(rf/dispatch [:start-flex-consumer
+                                                              {:exchange @exchange-name
+                                                               :queue @queue-name
+                                                               :msg_type "pb"
+                                                               :pb_type @selected-protobuf-type
+                                                               :content @content-edn}])}
           "Publish"]
          [:button.button {:on-click #(reset! is-active false)} "Cancel"]]]])))
