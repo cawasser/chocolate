@@ -179,9 +179,11 @@
       [:div.container
 
        [modal/pub-modal flex-pub-active] ; modal panel for dynamically creating protobuf messages to send
-;       [modal/con-modal flex-con-active] ; modal panel for dynamically creating protobuf messages to send
+       [modal/con-modal flex-con-active] ; modal panel for dynamically creating protobuf messages to send
 
        [:button.button.is-warning {:on-click #(reset! flex-pub-active true)} "Flexible-publisher"]
+       [:button.button.is-warning {:on-click #(reset! flex-con-active true)} "Flexible-consumer"]
+
        [:div.container
         [:div.level
          [:div.level-left {:style {:width "50%"}}
@@ -197,7 +199,6 @@
                                (str m)]) @messages))]]]]]
 
          [:div.level-right {:style {:width "50%"}}
-          [:button.button.is-warning {:on-click #(reset! flex-con-active true)} "Flexible-consumer"]
           [:h3 "Received:"
             [:div.tile.is-ancestor
              [:div.tile.is-vertical.is-8

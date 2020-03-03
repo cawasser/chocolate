@@ -33,7 +33,7 @@
   (fn-traced [cofx [_ message]]
              ;(prn "::start-consumer " message)
              {:http-xhrio {:method          :post
-                           :uri             "/api/start-consumer"
+                           :uri             "/api/start-flex-consumer"
                            :format          (ajax/json-request-format)
                            :response-format (ajax/json-response-format {:keywords? true})
                            :params          message
@@ -209,16 +209,19 @@
          [:textarea.textarea {:value @protoc}]]
 
         [:section.modal-card-body ; content-edn
-         [input-field :textarea.textarea :text "content" content-edn]]
+         [input-field :textarea.textarea :text "dummy" content-edn]]
         ;[:p (if (ready?) "ready" "NOT")]]
 
         [:footer.modal-card-foot
          [:button.button.is-success {:disabled (not (ready?))
-                                     :on-click #(rf/dispatch [:start-flex-consumer
-                                                              {:exchange @exchange-name
-                                                               :queue @queue-name
-                                                               :msg_type "pb"
-                                                               :pb_type @selected-protobuf-type
-                                                               :content @content-edn}])}
-          "Publish"]
+                                     :on-click #(do
+                                                  (rf/dispatch [:start-flex-consumer
+                                                                {:exchange @exchange-name
+                                                                 :queue @queue-name
+                                                                 :msg_type "pb"
+                                                                 :pb_type @selected-protobuf-type
+                                                                 :dummy @content-edn}])
+                                                  (reset! is-active false))}
+
+          "Start Listening"]
          [:button.button {:on-click #(reset! is-active false)} "Cancel"]]]])))

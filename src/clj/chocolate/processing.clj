@@ -35,9 +35,11 @@
 
 
 (defn pb-processing-fn
-  [pb_type body parsed envelope components]
+  [pb_type dummy body parsed envelope components]
 
-  (let [decoded (pb-if/decode-content pb_type body)]
+  (prn "running pb-processing-fn " pb_type ", " dummy ", " body)
+
+  (let [decoded (pb-if/decode-content pb_type dummy body)]
 
     ; if this is a "Message", then republish onto the "EDN" queue (some.queue)
     (if (= pb_type "Message")

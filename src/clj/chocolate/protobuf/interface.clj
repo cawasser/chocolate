@@ -22,16 +22,14 @@
 ;(defmulti decode-content (fn [pb_type m] pb_type))
 
 (defn decode-content
+  [pb_type dummy msg]
 
-  [pb_type msg]
-  (prn "decode-content " pb_type)
+  (prn "decode-content " pb_type " //// " dummy)
   (let [java-class (utils/get-from pb_type :class)]
     (utils/import-by-name java-class)
     (->> msg
          (protobuf/bytes->
-           (protobuf/create
-             (utils/class-for-name java-class)
-             (utils/get-from pb_type :dummy))))))
+           (protobuf/create (utils/class-for-name java-class) dummy)))))
 
 (comment
   (def pb_type "Person")

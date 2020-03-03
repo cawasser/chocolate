@@ -110,11 +110,11 @@
    ["/start-flex-consumer"
     {:post {:summary    "start a flexible protobuf consumer"
             :responses  {200 {:body {:success boolean? :exchange string?}}}
-            :parameters {:body {:exchange string? :queue string?
-                                :pb-type string? :dummy string?}}
-            :handler    (fn [{{{:keys [exchange queue pb-type dummy]} :body} :parameters}]
-                          (prn "starting consumer " queue)
-                          (ok (mc/start-consumer-raw exchange queue "pb" pb-type dummy)))}}]])
+            :parameters {:body {:exchange string? :queue string? :msg_type string?
+                                :pb_type string? :dummy string?}}
+            :handler    (fn [{{{:keys [exchange queue msg_type pb_type dummy]} :body} :parameters}]
+                          (prn "starting consumer " exchange ", " queue ", " pb_type ", " dummy)
+                          (ok (mc/start-consumer-raw exchange queue msg_type pb_type dummy)))}}]])
 
 
 

@@ -63,7 +63,7 @@
                     (preprocess-content)
                     (protobuf/create Example$Person)
                     (protobuf/->bytes)))
-  (pb-if/decode-content "Person" person-msg)
+  ;(pb-if/decode-content "Person" person-msg)
 
   (pb-if/encode-content person)
   (pb-if/encode-content message)
