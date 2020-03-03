@@ -72,14 +72,14 @@
   :figwheel
   {:http-server-root "public"
    :server-logfile "log/figwheel-logfile.log"
-   :nrepl-port 7002
+   :nrepl-port 7702
    :css-dirs ["resources/public/css"]
    :nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
 
   :profiles
   {:uberjar {:omit-source true
-             :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+             :prep-tasks ["protobuf" "compile" ["cljsbuild" "once" "min"]]
              :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]
              :cljsbuild{:builds
               {:min

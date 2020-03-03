@@ -41,7 +41,7 @@
    return - 'stuart sierra component' for later use"
   [consumer]
   (component/system-map
-    :rmq-connection conn/connection
+    :rmq-connection (conn/connection)
     :monitoring monitoring/BaseMonitoring
     :consumer (component/using
                 consumer
@@ -143,14 +143,14 @@
 
   (require '[chocolate.queue.publisher :as pub])
   (require '[chocolate.message-publisher :as mp])
-  (require)
+  (require '[chocolate.processing :as proc])
 
 
   (def exchange "my-exchange")
   (def queue "some.queue")
   (def typ "edn")
   (def msg-type "edn")
-  (def handler-fn edn-handler)
+  (def handler-fn proc/edn-handler)
 
   (find-consumer-for exchange queue)
 
@@ -172,11 +172,11 @@
   (pub/publish {:exchange "my-exchange" :queue "some.queue"
                 :msg_type "edn" :content {:name "Dave" :value 2187}})
 
-  (create-consumer-for "my-exchange" "some.queue" edn-handler)
+  (create-consumer-for "my-exchange" "some.queue" proc/edn-handler)
 
   (mp/publish-message "1")
 
-  @edn-messages-received
+  @proc/edn-messages-received
   (reset! edn-messages-received [])
 
   (stop-and-remove-consumer-for exchange queue)

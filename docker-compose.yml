@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  rabbitmq:
+    container_name: some-rabbit
+    ports:
+      - '15672:15672'
+    image: my-rabbit
+    networks:
+      - my-net
+
+  chocodoc:
+    container_name: choco_doc
+    depends_on:
+      - rabbitmq
+    ports:
+      - '3000:3000'
+      - '7000:7000'
+    image: choco_doc
+    environment:
+      - RABBIT_HOST="rabbitmq"
+      - RABBIT_PORT=5672
+      - RABBIT_USERNAME="guest"
+      - RABBIT_PASSWORD="guest"
+      - RABBIT_VHOST="/main"
+    networks:
+      - my-net
+
+networks:
+  my-net:
