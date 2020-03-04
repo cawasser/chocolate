@@ -1,4 +1,4 @@
-(defproject chocolate "0.3.0"
+(defproject chocolate "lein-git-inject/version"
 
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
@@ -50,7 +50,8 @@
 
                  [cljsjs/toastr "2.1.2-1"]
 
-                 [com.taoensso/sente "1.15.0"]]
+                 [com.taoensso/sente "1.15.0"]
+                 [trptcolin/versioneer "0.2.0"]]
                  ;[cljsjs/codemirror "5.44.0-1"]]
 
   :min-lein-version "2.0.0"
@@ -63,7 +64,11 @@
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-kibit "0.1.2"]
-            [leancloud-lein-protobuf "0.5.4"]]
+            [leancloud-lein-protobuf "0.5.4"]
+            [day8/lein-git-inject "0.0.11"]
+            [lein-pprint "1.3.2"]]
+
+  :middleware [leiningen.git-inject/middleware]
 
   :proto-path "resources/proto"
   :protoc "protoc"

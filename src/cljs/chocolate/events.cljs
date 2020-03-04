@@ -8,6 +8,17 @@
 
 ;;dispatchers
 
+(rf/reg-event-fx
+  :get-version
+  (fn-traced [cofx _]
+             (prn ":get-version")
+             {:http-xhrio {:method          :get
+                           :uri             "/api/version"
+                           :response-format (ajax/json-response-format {:keywords? true})
+                           :on-success      [:set-version]
+                           :on-error [:version-error]}}))
+
+
 (rf/reg-event-db
   :navigate
   (fn-traced [db [_ match]]
@@ -60,6 +71,19 @@
 
 
 
+(rf/reg-event-db
+  :set-version
+  (fn-traced [db [_ version]]
+             ;(prn ":set-version " version)
+             (assoc db :version (:version version))))
+
+
+(rf/reg-event-db
+  :version-error
+  (fn-traced [db [_ error]]
+    (assoc db :version error)))
+
+
 ;;subscriptions
 
 
@@ -99,3 +123,10 @@
   :common/error
   (fn [db _]
     (:common/error db)))
+
+(rf/reg-sub
+  :version
+  (fn [db _]
+    ;(prn (str ":version " db))
+    (get db :version)))
+

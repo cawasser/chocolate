@@ -18,8 +18,8 @@
         {:error "Error parsing edn file '%s': %s\n" source (.getMessage e)})))
 
 
-(defn load-file
-  "Load edn from an io/reader source (filename or io/resource)."
+(defn load-text-file
+  "Load a text file into a string."
   [source]
   (try
     (-> source
@@ -34,7 +34,7 @@
 
 
 (comment
-  (load-file "resources/proto/person.proto")
+  (load-text-file "resources/proto/person.proto")
 
 
   ())
