@@ -7,6 +7,7 @@
     [goog.history.EventType :as HistoryEventType]
     [markdown.core :refer [md->html]]
     [chocolate.ajax :as ajax]
+    [ajax.core :refer [GET POST]]
     [chocolate.events]
     [reitit.core :as reitit]
     [reitit.frontend.easy :as rfe]
@@ -37,7 +38,8 @@
       {:class (when @expanded? :is-active)}
       [:div.navbar-start
        [nav-link "#/" "Home" :home]
-       [nav-link "#/about" "About" :about]]]]))
+       [nav-link "#/about" "About" :about]]]
+     [:p @(rf/subscribe [:version])]]))
 
 (defn about-page []
   [:section.section>div.container>div.content
@@ -85,6 +87,7 @@
   (start-router!)
   (ajax/load-interceptors!)
   (ws/send! [:message/create! "TESTING"])
+  (rf/dispatch-sync [:get-version])
   (mount-components))
 
 

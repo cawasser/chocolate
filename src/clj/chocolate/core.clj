@@ -7,7 +7,8 @@
     [chocolate.config :refer [env]]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.tools.logging :as log]
-    [mount.core :as mount])
+    [mount.core :as mount]
+    [trptcolin.versioneer.core :as version])
   (:gen-class))
 
 ;; log uncaught exceptions in threads
@@ -53,6 +54,10 @@
                         mount/start-with-args
                         :started)]
     (log/info component "started"))
+  (log/info "version " (version/get-version
+                         "chocolate"
+                         "chocolate"
+                         "version number not found"))
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
 (defn -main [& args]

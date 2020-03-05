@@ -16,7 +16,8 @@
     [chocolate.message-consumer :as mc]
     [chocolate.routes.edn-utils :as e]
     [chocolate.protobuf.encoder :as pbe]
-    [clojure.tools.logging :as log]))
+    [clojure.tools.logging :as log]
+    [trptcolin.versioneer.core :as version]))
 
 
 
@@ -55,6 +56,15 @@
              {:url    "/api/swagger.json"
               :config {:validator-url nil}})}]]
 
+   ["/version"
+    {:get {:summary   "return the version number of the server build"
+           :responses {200 {:body {}}}
+           :handler   (fn [_]
+                        (log/info "someone is fetching the version number")
+                        (ok {:version (version/get-version
+                                        "chocolate"
+                                        "chocolate"
+                                        "version number not found")}))}}]
    ["/messages"
     {:get {:summary   "return all messages in the database"
            :responses {200 {:body {:messages [{}]}}}

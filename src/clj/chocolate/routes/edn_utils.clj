@@ -19,7 +19,7 @@
 
 
 (defn load-text-file
-  "Load edn from an io/reader source (filename or io/resource)."
+  "Load a text file into a string."
   [source]
   (try
     (-> source
