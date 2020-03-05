@@ -75,11 +75,11 @@
 
    ["/get-protoc"
     {:post {:summary    "return the content of the selected protobuf type"
-            :responses  {200 {:body {}}};:selected-protoc ""}}}
+            :responses  {200 {:body {}}} ;:selected-protoc ""}}}
             :parameters {:body {:protoc string?}}
             :handler    (fn [{{{:keys [protoc]} :body} :parameters}]
                           (log/info "/get-protoc " protoc)
-                          (ok {:selected-protoc (e/load-file protoc)}))}}]
+                          (ok {:selected-protoc (e/load-text-file protoc)}))}}]
 
    ["/publish"
     {:post {:summary    "publish a message"
