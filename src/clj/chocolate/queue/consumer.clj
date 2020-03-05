@@ -92,7 +92,12 @@
    returns - the 'stuart sierra component' used to consume the queue's content
 
    NOTE: the consumer component is automatically 'started' by this call if it needs to create the
-   consumer, so you DON'T need to start it manually"
+   consumer, so you DON'T need to start it manually
+
+   NOTE: bunnicula will automatically create a queue of the given name, so long as the exchange exists
+
+   NOTE: creating a second consumer on the same exchange/queue pair seems to \"replace\" the consumer wth the newer one. It is
+   unclear if the original is garbage collected or simply leaked."
 
   ([exchange queue handler-fn msg-type]
    (let [p   (find-consumer-for exchange queue)
