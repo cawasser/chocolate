@@ -38,7 +38,7 @@
                            :response-format (ajax/json-response-format {:keywords? true})
                            :params          message
                            :on-success      [:consumer-started]
-                           :on-failure      [:consumer-started {:success false}]}}))
+                           :on-failure      [:consumer-started]}}))
 
 (rf/reg-event-fx
   :publish-message-raw
@@ -49,8 +49,8 @@
                            :format          (ajax/json-request-format)
                            :response-format (ajax/json-response-format {:keywords? true})
                            :params          message
-                           :on-success      [:message-published true]
-                           :on-failure      [:message-published false]}}))
+                           :on-success      [:message-published]
+                           :on-failure      [:message-published]}}))
 
 (rf/reg-event-fx
   :get-protoc
@@ -62,7 +62,7 @@
                            :response-format (ajax/json-response-format {:keywords? true})
                            :params          type
                            :on-success      [:selected-protoc]
-                           :on-failure      [:message-published false]}}))
+                           :on-failure      [:message-published {:success false}]}}))
 
 
 (rf/reg-sub
@@ -107,11 +107,12 @@
   [items selected message]
 
   (if (< 0 (count items))
-    [:select {:on-change #(rf/dispatch-sync [message (-> % .-target .-value)])}
+    [:select {:value selected
+              :on-change #(rf/dispatch-sync [message (-> % .-target .-value)])}
      (for [[idx i] (map-indexed vector items)]
        (do
          (prn idx " / " i " / " (name i))
-         ^{:key idx}[:option {:value i :selected (if (= selected i) true false)} (name i)]))]))
+         ^{:key idx}[:option {:value i } (name i)]))]))
 
   ;(let [is-active (r/atom false)]
   ;  (fn []

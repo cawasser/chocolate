@@ -107,13 +107,14 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :params          {:id id}
-                  :on-success      [:message-published true]
-                  :on-failure      [:message-published false]}}))
+                  :on-success      [:message-published]
+                  :on-failure      [:message-published]}}))
 
 (rf/reg-event-fx
   :message-published
   (fn-traced [cofx [_ success?]]
-    (if success?
+    (prn ":message-published success? " success?)
+    (if (:success success?)
       (js/toastr.success "Published!")
       (js/toastr.error "Something went wrong..."))
     {}))
@@ -129,12 +130,12 @@
                   :response-format (ajax/json-response-format {:keywords? true})
                   :params          {:id id}
                   :on-success      [:consumer-started]
-                  :on-failure      [:consumer-started {:success false}]}}))
+                  :on-failure      [:consumer-started]}}))
 
 (rf/reg-event-fx
   :consumer-started
   (fn-traced [cofx [_ success?]]
-    (prn "success? " success?)
+    (prn ":consumer-started success? " success?)
     (if (:success success?)
       (js/toastr.success "Started!")
       (js/toastr.error "Something went wrong..."))
