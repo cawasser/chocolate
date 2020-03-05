@@ -64,6 +64,7 @@
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-kibit "0.1.2"]
+            [lein-marginalia "0.9.1"]
             [leancloud-lein-protobuf "0.5.4"]
             [day8/lein-git-inject "0.0.11"]
             [lein-pprint "1.3.2"]]
