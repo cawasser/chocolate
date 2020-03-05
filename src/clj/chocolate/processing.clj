@@ -60,7 +60,7 @@
 
   *components*(?)        unused, provided to the handler by bunnicaula
 
-  Note: since this is a multimethod, you can provide custom handlers (see (defmethod ... \"Message\" ...) below)"
+  Note: since this is a multi-method, you can provide custom handlers (see (defmethod ... \"Message\" ...) below)"
   {:arglists '([pb_type dummy body parsed envelope components])}
 
   (fn [pb_type dummy body parsed envelope components] pb_type))
