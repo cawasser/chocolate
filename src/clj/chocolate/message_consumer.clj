@@ -9,10 +9,20 @@
 
 (defn- call-consumer
   [exchange queue handler-fn msg_type]
-  (if (nil? (qc/create-consumer-for exchange queue handler-fn msg_type))
+  (if (empty? (qc/create-consumer-for exchange queue handler-fn msg_type))
     false
     true))
 
+(comment
+  (def exchange "pe")
+  (def queue "person.queue")
+  (def msg_type "pb")
+  (def pb_type "Person")
+  (def dummy "")
+  (def handler-fn (h/pb-handler proc/pb-processing-fn pb_type dummy))
+
+  (empty? ())
+  ())
 
 (defn start-consumer-raw
   [exchange queue msg_type pb_type dummy]

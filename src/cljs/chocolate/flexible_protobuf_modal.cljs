@@ -37,8 +37,8 @@
                            :format          (ajax/json-request-format)
                            :response-format (ajax/json-response-format {:keywords? true})
                            :params          message
-                           :on-success      [:consumer-started true]
-                           :on-failure      [:consumer-started false]}}))
+                           :on-success      [:consumer-started]
+                           :on-failure      [:consumer-started {:success false}]}}))
 
 (rf/reg-event-fx
   :publish-message-raw

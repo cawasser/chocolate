@@ -128,13 +128,14 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :params          {:id id}
-                  :on-success      [:consumer-started true]
-                  :on-failure      [:consumer-started false]}}))
+                  :on-success      [:consumer-started]
+                  :on-failure      [:consumer-started {:success false}]}}))
 
 (rf/reg-event-fx
   :consumer-started
   (fn-traced [cofx [_ success?]]
-    (if success?
+    (prn "success? " success?)
+    (if (:success success?)
       (js/toastr.success "Started!")
       (js/toastr.error "Something went wrong..."))
     {}))
