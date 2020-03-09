@@ -73,3 +73,29 @@
   (pb-if/decode-content "Message" (:content (pb-if/encode-content  message)))
 
   ())
+
+
+(comment
+  (def im-content {:sender {:id 100 :name "Chris"}
+                   :content {:sender "Chris"
+                             :content "Here is an embedded message"
+                             :tags ["tag1"]}})
+
+  (def im-msg {:exchange "pb-exchange"
+               :queue "im"
+               :msg_type "pb"
+               :pb_type "IM"
+               :content im-content})
+
+  (:pb_type im-msg)
+
+  (require '[chocolate.protobuf.interface :as pb-if])
+
+  (def enc (pb-if/encode-content im-content))
+
+  (pb-if/decode-content "IM" (:content (pb-if/encode-content  im-msg)))
+  (pb-if/encode-content im-content)
+
+
+
+  ())

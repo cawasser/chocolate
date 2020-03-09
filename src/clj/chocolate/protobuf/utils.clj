@@ -28,4 +28,12 @@
 
   (reset! pb-type-reg {})
 
+
+  (def java-class "com.example.tutorial.Example$IM")
+  (import-by-name java-class)
+
+  (import '[com.example.tutorial.Example$IM])
+  (import '[com.example.tutorial.Example$Person])
+
+
   ())

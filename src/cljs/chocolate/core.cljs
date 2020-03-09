@@ -86,7 +86,7 @@
   (mount/start)
   (start-router!)
   (ajax/load-interceptors!)
-  (ws/send! [:message/create! "TESTING"])
+  (rf/dispatch-sync [:init-db])
   (rf/dispatch-sync [:get-version])
   (mount-components))
 

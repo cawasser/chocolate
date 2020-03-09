@@ -72,6 +72,21 @@
 
 
 (comment
+  (def im-content {:sender {:id 100 :name "Chris"}
+                   :content {:sender "Chris"
+                             :content "Here is an embedded message"
+                             :tags ["tag1"]}})
+
+  (def im-msg {:exchange "pb-exchange"
+               :queue "im.queue"
+               :msg_type "pb"
+               :pb_type "IM"
+               :content im-content})
+
+  (publish-message-raw im-msg)
+
+
+
   (def one {:id "1",
             :msg_type "edn",
             :exchange "my-exchange",
@@ -88,5 +103,8 @@
   (qp/publish (encode-edn one))
 
   (publish-message "1")
+
+
+  {:sender {:id 100 :name "Bobby"} :content {:sender "Bob" :content "Here is my message"}}
 
   ())

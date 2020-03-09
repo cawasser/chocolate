@@ -171,9 +171,7 @@
 (defn button-page []
   (let [messages (rf/subscribe [:messages])
         consumers (rf/subscribe [:consumers])
-        edn-messages-received (rf/subscribe [:edn-messages-received])
-        person-messages-received (rf/subscribe [:person-messages-received])
-        messages-messages-received (rf/subscribe [:message-messages-received])
+        messages-received (rf/subscribe [:messages-received])
         flex-pub-active (r/atom false)
         flex-con-active (r/atom false)]
     (fn []
@@ -213,6 +211,9 @@
                           (str (:queue m))]) @consumers))]]]]]]]]
 
        [:div.container
-        [:p (str "EDN: " @edn-messages-received)]
-        [:p (str "Prsn: " @person-messages-received)]
-        [:p (str "Msg: " @messages-messages-received)]]])))
+        [:p "received messages"]
+        [:div
+         (for [[q msgs] @messages-received]
+           ^{:key q} [:p (str q ": " msgs)])]]])))
+
+

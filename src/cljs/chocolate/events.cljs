@@ -51,24 +51,22 @@
 
 
 (rf/reg-event-db
+  :init-db
+  (fn-traced
+    [db _]
+    (prn ":init-db")
+    (assoc db :messages-received {})))
+
+
+(rf/reg-event-db
   :message/add
   (fn-traced
     [db [_ {:keys [queue content] :as message}]]
     (prn ":message/add " queue "/" content)
-    (cond
 
-      (= queue "EDN") (do
-                        (prn "EDN message")
-                        (assoc db :edn-messages-received (conj (:edn-messages-received db) content)))
-
-      (= queue "Person") (do
-                           (prn "Person message")
-                           (assoc db :person-messages-received (conj (:person-messages-received db) content)))
-
-      (= queue "Message") (do
-                            (prn "Message message")
-                            (assoc db :message-messages-received (conj (:message-messages-received db) content))))))
-
+    (assoc db :messages-received
+              (assoc (:messages-received db)
+                queue (conj (get-in db [:messages-received queue]) content)))))
 
 
 (rf/reg-event-db
@@ -88,19 +86,9 @@
 
 
 (rf/reg-sub
-  :edn-messages-received
+  :messages-received
   (fn [db _]
-    (-> db :edn-messages-received)))
-
-(rf/reg-sub
-  :person-messages-received
-  (fn [db _]
-    (-> db :person-messages-received)))
-
-(rf/reg-sub
-  :message-messages-received
-  (fn [db _]
-    (-> db :message-messages-received)))
+    (-> db :messages-received)))
 
 (rf/reg-sub
   :route
