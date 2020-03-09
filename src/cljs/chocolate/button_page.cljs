@@ -211,7 +211,7 @@
                           (str (:queue m))]) @consumers))]]]]]]]]
 
        [:div.container
-        [:p "received messages"]
+        [:h5 "received messages"]
         [:div
          (for [[q msgs] @messages-received]
            ^{:key q} [:p (str q ": " msgs)])]]])))
