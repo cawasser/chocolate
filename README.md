@@ -22,7 +22,13 @@ You will also need to add `dev-config.edn` to the main project folder, containin
  :port 3000
  :nrepl-port 7000
 
- :database-url "jdbc:sqlite:chocolate_dev.db"}
+ :database-url "jdbc:sqlite:chocolate_dev.db"
+ 
+ :rabbit-host "127.0.0.1"
+ :rabbit-port 5672
+ :rabbit-username "guest"
+ :rabbit-password "guest"
+ :rabbit-vhost "/main"}
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
