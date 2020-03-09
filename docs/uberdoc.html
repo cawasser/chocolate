@@ -3361,15 +3361,21 @@ net.brehaut.ClojureTools = (function (SH) {
 </td><td class="codes"><pre class="brush: clojure">(defonce edn-messages-received
          (atom []))</pre></td></tr><tr><td class="docs"><p>handler for EDN messages</p>
 </td><td class="codes"></td></tr><tr><td class="docs"><p>A protocol buffer processing function must be provided to a consumer. This function provides generic handling
-  of ALL edn-formatted messages (converted to/from JSON automaticlly by bunnicula).</p>
+  of ALL edn-formatted messages (converted to/from JSON automatically by bunnicula).</p>
 
-<p>  <em>body</em>(binary)       unused, provided by bunnicula</p>
+<p>  <em>body</em> (binary)       unused, provided by bunnicula</p>
 
-<p>  *parsed(string)      EDN contents of the received message. bunnicula already decodes from JSON into EDN</p>
+<p>  <em>parsed</em> (string)     EDN contents of the received message. bunnicula already decodes from JSON into EDN</p>
 
-<p>  <em>envelope</em>(?)        unused, provided to the handler by bunnicaula</p>
+<p>  <em>envelope</em> (?)        unused, provided to the handler by bunnicaula</p>
 
-<p>  <em>components</em>(?)      unused, provided to the handler by bunnicaula</p>
+<p>  <em>components</em> (?)      unused, provided to the handler by bunnicaula</p>
+
+<p>  This is the "base level" handler for messages received on the queue. It does the work.</p>
+
+<p>  In our case, it takes the decoded message and sends it to all attached clients using sente websockets. For REPL
+  debugging purposes, it also conj's each message onto the <code>edn-messages</code> atom so we can see all the
+  messages that have been received so far.</p>
 </td><td class="codes"><pre class="brush: clojure">(defn edn-processing-fn
   [body parsed envelope components]
   (ws/send-to-all! (assoc {} :content parsed :queue &quot;EDN&quot;))
@@ -3390,20 +3396,20 @@ net.brehaut.ClojureTools = (function (SH) {
 <p>  a :default implementation is provided which will handle ANY protobuf type dynamically, assuming
   the appropriate Java class is accessible on the classpath</p>
 
-<p>  <em>pb_type</em>(string)      name of the protobuf type expected, used to load the Java class and
+<p>  <em>pb_type</em> (string)      name of the protobuf type expected, used to load the Java class and
   instantiate an instance, required by bunnicula</p>
 
-<p>  <em>dummy</em>(string)        edn string containing the required content to construct a valid instance of the
+<p>  <em>dummy</em> (string)        edn string containing the required content to construct a valid instance of the
   Java class named by <em>pb_type</em></p>
 
-<p>  <em>body</em>(binary data)    the un-decoded binary value of the protobuf message received on the queue,
+<p>  <em>body</em> (binary data)    the un-decoded binary value of the protobuf message received on the queue,
   provided to the handler by bunnicaula. This function MUST decode the contents!</p>
 
-<p>  <em>parsed</em>(string)       unused, provided to the handler by bunnicaula</p>
+<p>  <em>parsed</em> (string)       unused, provided to the handler by bunnicaula</p>
 
-<p>  <em>envelope</em>(?)          unused, provided to the handler by bunnicaula</p>
+<p>  <em>envelope</em> (?)          unused, provided to the handler by bunnicaula</p>
 
-<p>  <em>components</em>(?)        unused, provided to the handler by bunnicaula</p>
+<p>  <em>components</em> (?)        unused, provided to the handler by bunnicaula</p>
 
 <p>  Note: since this is a multimethod, you can provide custom handlers (see (defmethod ... "Message" ...) below)</p>
 </td><td class="codes"><pre class="brush: clojure">(defmulti pb-processing-fn
