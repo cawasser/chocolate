@@ -21,12 +21,12 @@
 
 
 (defn send! [uid message]
-  (prn "send! " message " to " uid)
+  (prn "ws send! " message " to " uid)
   ((:send-fn socket) uid message))
 
 
 (defn send-to-all! [message]
-  (prn "publishing " message ", " @(:connected-uids socket))
+  (prn "ws publishing " message ", " @(:connected-uids socket))
   (doseq [uid (:any @(:connected-uids socket))]
     (send! uid [:message/add message])))
 

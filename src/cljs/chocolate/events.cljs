@@ -8,6 +8,17 @@
 
 ;;dispatchers
 
+(rf/reg-event-fx
+  :get-version
+  (fn-traced [cofx _]
+             (prn ":get-version")
+             {:http-xhrio {:method          :get
+                           :uri             "/api/version"
+                           :response-format (ajax/json-response-format {:keywords? true})
+                           :on-success      [:set-version]
+                           :on-error [:version-error]}}))
+
+
 (rf/reg-event-db
   :navigate
   (fn-traced [db [_ match]]
@@ -27,19 +38,6 @@
     {:navigate-fx! [url-key params query]}))
 
 (rf/reg-event-db
-  :set-docs
-  (fn-traced [db [_ docs]]
-    (assoc db :docs docs)))
-
-(rf/reg-event-fx
-  :fetch-docs
-  (fn-traced [_ _]
-    {:http-xhrio {:method          :get
-                  :uri             "/docs"
-                  :response-format (ajax/raw-response-format)
-                  :on-success       [:set-docs]}}))
-
-(rf/reg-event-db
   :common/set-error
   (fn-traced [db [_ error]]
     (assoc db :common/error error)))
@@ -48,23 +46,49 @@
   :page/init-home
   (fn-traced [_ _]
     (rf/dispatch [:load-messages])
-    (rf/dispatch [:load-consumers])))
+    (rf/dispatch [:load-consumers])
+    (rf/dispatch [:load-protobuf-types])))
+
+
+(rf/reg-event-db
+  :init-db
+  (fn-traced
+    [db _]
+    (prn ":init-db")
+    (assoc db :messages-received {})))
 
 
 (rf/reg-event-db
   :message/add
-  (fn-traced [db [_ message]]
-    (assoc db :messages-recevied (conj (:messages-recevied db) message))))
+  (fn-traced
+    [db [_ {:keys [queue content] :as message}]]
+    (prn ":message/add " queue "/" content)
 
+    (assoc db :messages-received
+              (assoc (:messages-received db)
+                queue (conj (get-in db [:messages-received queue]) content)))))
+
+
+(rf/reg-event-db
+  :set-version
+  (fn-traced [db [_ version]]
+             ;(prn ":set-version " version)
+             (assoc db :version (:version version))))
+
+
+(rf/reg-event-db
+  :version-error
+  (fn-traced [db [_ error]]
+    (assoc db :version error)))
 
 
 ;;subscriptions
 
 
 (rf/reg-sub
-  :messages-recevied
+  :messages-received
   (fn [db _]
-    (-> db :messages-recevied)))
+    (-> db :messages-received)))
 
 (rf/reg-sub
   :route
@@ -84,11 +108,13 @@
     (-> route :data :view)))
 
 (rf/reg-sub
-  :docs
-  (fn [db _]
-    (:docs db)))
-
-(rf/reg-sub
   :common/error
   (fn [db _]
     (:common/error db)))
+
+(rf/reg-sub
+  :version
+  (fn [db _]
+    ;(prn (str ":version " db))
+    (get db :version)))
+

@@ -2,14 +2,49 @@
   (:require [chocolate.db.core :as db]
             [chocolate.queue.consumer :as qc]
             [chocolate.protobuf.handlers :as h]
-            [chocolate.processing :as proc]))
+            [chocolate.processing :as proc]
+            [chocolate.protobuf.utils :as utils]
+            [clojure.edn :as edn]))
 
 
 (defn- call-consumer
   [exchange queue handler-fn msg_type]
-  (if (nil? (qc/create-consumer-for exchange queue handler-fn msg_type))
+  (if (empty? (qc/create-consumer-for exchange queue handler-fn msg_type))
     false
     true))
+
+(comment
+  (def exchange "pe")
+  (def queue "person.queue")
+  (def msg_type "pb")
+  (def pb_type "Person")
+  (def dummy "")
+  (def handler-fn (h/pb-handler proc/pb-processing-fn pb_type dummy))
+
+  (empty? ())
+  ())
+
+(defn start-consumer-raw
+  [exchange queue msg_type pb_type dummy]
+
+  (prn "start-consumer-raw " exchange ", " queue ", " msg_type ", " pb_type ", " dummy)
+
+  (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
+    (condp
+     = msg_type
+
+     "edn" (assoc ret :success (call-consumer
+                                exchange
+                                queue
+                                (proc/edn-handler proc/edn-processing-fn)
+                                msg_type))
+
+     "pb" (assoc ret :success (call-consumer
+                               exchange
+                               queue
+                               (h/pb-handler proc/pb-processing-fn pb_type (if (string? dummy) (clojure.edn/read-string dummy) dummy))
+                               msg_type)))))
+
 
 (defn start-consumer
   "starts a listener using the configuration data in the database with the given id
@@ -20,25 +55,11 @@
 
   [id]
 
-  (if-let [{:keys [exchange queue pb_type msg_type]} (db/get-consumer {:id id})]
-
-    (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
-      (prn "start-consumer " exchange "," queue "," pb_type "," msg_type)
-
-      (condp
-        = msg_type
-
-        "edn" (assoc ret :success (call-consumer
-                                    exchange
-                                    queue
-                                    (proc/edn-handler proc/edn-processing-fn)
-                                    msg_type))
-
-        "pb" (assoc ret :success (call-consumer
-                                   exchange
-                                   queue
-                                   (h/pb-handler proc/pb-processing-fn pb_type)
-                                   msg_type))))
+  (if-let [{:keys [exchange queue pb_type msg_type dummy]} (db/get-consumer {:id id})]
+    (let [d (if (nil? dummy) (utils/get-from pb_type :dummy) dummy)]
+     (do
+       (prn "start-consumer " exchange ", " queue ", " msg_type ", " pb_type ", " dummy ", " d)
+       (start-consumer-raw exchange queue msg_type pb_type d)))
 
     {:success false :id id}))
 
@@ -51,13 +72,13 @@
 
   (mp/publish-message "1")
 
-  (start-consumer "100")
+  (start-consumer "200")
 
   (def id "100")
   (def exchange "my-exchange")
   (def queue "some.queue")
   (def pb_type "Person")
-  (def msg_type "edn")
+  (def msg_type "pb")
   (def ret {})
 
   @proc/edn-messages-received
@@ -92,9 +113,10 @@
     = msg_type
 
     "edn" (assoc ret :success
-            (qc/create-consumer-for exchange queue qc/edn-handler msg_type))
+            (qc/create-consumer-for exchange queue proc/edn-handler msg_type))
     "pb" (assoc ret :success
-           (qc/create-consumer-for exchange queue (h/pb-handler pb_type) msg_type)))
+           (qc/create-consumer-for
+             exchange queue (h/pb-handler proc/pb-processing-fn pb_type) msg_type)))
 
   (if-let [{:keys [exchange queue pb_type msg_type]} (db/get-consumer {:id id})]
     (let [ret {:exchange exchange :queue queue :msg-type msg_type}]

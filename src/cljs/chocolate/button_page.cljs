@@ -8,8 +8,8 @@
     [chocolate.events]
     [clojure.string :as string]
     [ajax.core :as ajax]
-
-    [cljsjs.toastr]))
+    [cljsjs.toastr]
+    [chocolate.flexible-protobuf-modal :as modal]))
 
 
 
@@ -39,7 +39,7 @@
 (rf/reg-sub
   :messages
   (fn [db [_]]
-    (prn ":messages subscription " (:messages db))
+    ;(prn ":messages subscription " (:messages db))
     (:messages db)))
 
 
@@ -68,8 +68,30 @@
 (rf/reg-sub
   :consumers
   (fn [db [_]]
-    (prn ":consumers subscription " (:consumers db))
+    ;(prn ":consumers subscription " (:consumers db))
     (:consumers db)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; protobuf-types management
+;
+
+(rf/reg-event-fx
+  :load-protobuf-types
+  (fn-traced [cofx [_]]
+    {:http-xhrio {:method          :get
+                  :uri             "/api/protobuf-types"
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [:protobuf-types-loaded]
+                  :on-failure      [:common/set-error]}}))
+
+
+(rf/reg-event-db
+  :protobuf-types-loaded
+  (fn-traced [db [_ pb-types]]
+    (assoc db :protobuf-types (:protobuf-types pb-types))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -85,13 +107,14 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :params          {:id id}
-                  :on-success      [:message-published true]
-                  :on-failure      [:message-published false]}}))
+                  :on-success      [:message-published]
+                  :on-failure      [:message-published]}}))
 
 (rf/reg-event-fx
   :message-published
   (fn-traced [cofx [_ success?]]
-    (if success?
+    (prn ":message-published success? " success?)
+    (if (:success success?)
       (js/toastr.success "Published!")
       (js/toastr.error "Something went wrong..."))
     {}))
@@ -106,13 +129,14 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :params          {:id id}
-                  :on-success      [:consumer-started true]
-                  :on-failure      [:consumer-started false]}}))
+                  :on-success      [:consumer-started]
+                  :on-failure      [:consumer-started]}}))
 
 (rf/reg-event-fx
   :consumer-started
   (fn-traced [cofx [_ success?]]
-    (if success?
+    (prn ":consumer-started success? " success?)
+    (if (:success success?)
       (js/toastr.success "Started!")
       (js/toastr.error "Something went wrong..."))
     {}))
@@ -147,10 +171,19 @@
 (defn button-page []
   (let [messages (rf/subscribe [:messages])
         consumers (rf/subscribe [:consumers])
-        messages-received (rf/subscribe [:messages-recevied])]
+        messages-received (rf/subscribe [:messages-received])
+        flex-pub-active (r/atom false)
+        flex-con-active (r/atom false)]
     (fn []
-      (prn "button-page " (count @messages) " //// " (count @consumers))
+      ;(prn "button-page " (count @messages) " //// " (count @consumers))
       [:div.container
+
+       [modal/pub-modal flex-pub-active] ; modal panel for dynamically creating protobuf messages to send
+       [modal/con-modal flex-con-active] ; modal panel for dynamically creating protobuf messages to send
+
+       [:button.button.is-warning {:on-click #(reset! flex-pub-active true)} "Flexible-publisher"]
+       [:button.button.is-warning {:on-click #(reset! flex-con-active true)} "Flexible-consumer"]
+
        [:div.container
         [:div.level
          [:div.level-left {:style {:width "50%"}}
@@ -166,15 +199,21 @@
                                (str m)]) @messages))]]]]]
 
          [:div.level-right {:style {:width "50%"}}
-          [:h3 "Received:"]
-          [:div.tile.is-ancestor
-           [:div.tile.is-vertical.is-8
-            [:div.tile
-             [:div.tile.is-parent.is-vertical
-              (doall
-                (map (fn [m] ^{:key (:id m)}
-                       [:div.tile.is-child.box
-                        {:on-click #(start-consumer m)}
-                        (str (:queue m))]) @consumers))]]]]]]]
+          [:h3 "Received:"
+            [:div.tile.is-ancestor
+             [:div.tile.is-vertical.is-8
+              [:div.tile
+               [:div.tile.is-parent.is-vertical
+                (doall
+                  (map (fn [m] ^{:key (:id m)}
+                         [:div.tile.is-child.box
+                          {:on-click #(start-consumer m)}
+                          (str (:queue m))]) @consumers))]]]]]]]]
+
        [:div.container
-        [:p @messages-received]]])))
+        [:h5 "received messages"]
+        [:div
+         (for [[q msgs] @messages-received]
+           ^{:key q} [:p (str q ": " msgs)])]]])))
+
+

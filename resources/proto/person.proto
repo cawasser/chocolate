@@ -18,3 +18,8 @@ message Message {
   required string content = 2;
   repeated string tags    = 3;
 }
+
+message IM {
+  required Person sender  = 1;
+  required Message content = 2;
+}

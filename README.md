@@ -22,7 +22,13 @@ You will also need to add `dev-config.edn` to the main project folder, containin
  :port 3000
  :nrepl-port 7000
 
- :database-url "jdbc:sqlite:chocolate_dev.db"}
+ :database-url "jdbc:sqlite:chocolate_dev.db"
+ 
+ :rabbit-host "127.0.0.1"
+ :rabbit-port 5672
+ :rabbit-username "guest"
+ :rabbit-password "guest"
+ :rabbit-vhost "/main"}
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
@@ -73,18 +79,7 @@ Then, in another terminal/powershell window, run the client:
 
 ## Using the Client
 
-When the client opens, you should see a display with at least 4 *large* buttons, each showing the message structure, meta-data,
-and content of a message stored in the database.
-
-
-![screenshot 1](screenshots/main-client-screen.png)
-_fig. 1_
-
-Simply click on a message "button" and the web-server will publish the corresponding content to the defined queue and exchange.
-
-Then just look at the RabbitMQ console to see the message traffic and even examine the messages themselves.
-
-> NOTE: Consuming (getting) messages from the queues is _not_ currently supported.
+[link](docs/client.md)
 
 ## Using Swagger-UI
 
