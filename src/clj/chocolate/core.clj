@@ -5,6 +5,7 @@
     [luminus.http-server :as http]
     [luminus-migrations.core :as migrations]
     [chocolate.config :refer [env]]
+    [chocolate.db.init :refer [setup-database]]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.tools.logging :as log]
     [mount.core :as mount]
@@ -58,6 +59,7 @@
                          "chocolate"
                          "chocolate"
                          "version number not found"))
+  (setup-database)
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
 (defn -main [& args]
