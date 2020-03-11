@@ -5,8 +5,8 @@
 
 (defonce pb-type-reg (atom {}))
 
-(defmacro import-by-name [name]
-  `(import '[~name]))
+(defn import-by-name [name]
+  (.importClass (the-ns *ns*) (RT/classForName name)))
 
 
 (defn class-for-name [name]
