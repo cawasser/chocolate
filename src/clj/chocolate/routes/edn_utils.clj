@@ -9,8 +9,8 @@
     "Load edn from an io/reader source (filename or io/resource)."
     [source]
     (try
-      (with-open [r (io/reader source)]
-        (edn/read (java.io.PushbackReader. r)))
+      (if-let [r (io/resource source)]
+        (edn/read-string (slurp r)))
 
       (catch java.io.IOException e
         {:error "Couldn't open '%s': %s\n" source (.getMessage e)})
@@ -34,6 +34,18 @@
 
 
 (comment
+
+  (def source "dsa/edn/protobuf-types.edn")
+  (load-edn "edn/protobuf-types.edn")
+
+  (def r (io/resource source))
+  (slurp r)
+  (edn/read-string (slurp r))
+
+  (if-let [r (io/resource source)]
+    (edn/read-string (slurp r)))
+
+
   (load-text-file "resources/proto/person.proto")
 
 
