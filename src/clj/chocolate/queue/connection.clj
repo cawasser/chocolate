@@ -13,21 +13,21 @@
 (defn connection []
   (if (empty? @conn-atom)
     (do
-      (log/info "opening rabbitmq connection")
-      (reset! conn-atom (connection/create {:host (env :rabbit-host)
-                                            :port (env :rabbit-port)
-                                            :username (env :rabbit-username)
-                                            :password (env :rabbit-password)
-                                            :vhost (env :rabbit-vhost)}))))
+      (log/info "opening borker connection")
+      (reset! conn-atom (connection/create {:host (env :broker-host)
+                                            :port (env :broker-port)
+                                            :username (env :broker-username)
+                                            :password (env :broker-password)
+                                            :vhost (env :broker-vhost)}))))
 
-  (log/info "returning rabbitmq connection " (:host @conn-atom))
+  (log/info "returning broker connection " (:host @conn-atom))
   @conn-atom)
 
 
 
 (comment
 
-  (env :rabbit-vhost)
+  (env :broker-vhost)
 
   (connection)
   ())

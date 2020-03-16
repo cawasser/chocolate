@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package protobuf.examples;
 
+import "proto/extensions.proto";
 
 message Person {
    int32 id = 1;
    string name = 2;
+   string email = 3;
+   repeated string likes = 4;
 }

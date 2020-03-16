@@ -81,7 +81,7 @@
     {:get {:summary    "return all the protobuf-types"
            :responses  {200 {:body {:protobuf-types {}}}}
            :handler    (fn [_]
-                         (ok {:protobuf-types (e/load-edn "resources/edn/protobuf-types.edn")}))}}]
+                         (ok {:protobuf-types (e/load-edn "edn/protobuf-types.edn")}))}}]
 
    ["/get-protoc"
     {:post {:summary    "return the content of the selected protobuf type"
@@ -150,6 +150,7 @@
                     :pass       "123ABc"})
 
   (do
+    (db/clear-messages!)
     (db/create-message! {:id       "1"
                          :msg_type "edn"
                          :exchange "my-exchange"
@@ -175,7 +176,7 @@
                          :exchange "pb-exchange"
                          :queue    "message.queue"
                          :pb_type  "Message"
-                         :content  {:sender "Alice"
+                         :content  {:sender {:name "Alice"}
                                     :content "Hello from Alice"
                                     :tags ["hello" "alice" "friends"]}}))
   (db/get-messages)

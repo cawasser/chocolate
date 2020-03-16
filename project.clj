@@ -71,7 +71,7 @@
 
   :middleware [leiningen.git-inject/middleware]
 
-  :proto-path "resources/proto"
+  :proto-path "resources"
   :protoc "protoc"
 
   :clean-targets ^{:protect false}
