@@ -44,6 +44,8 @@
                  [selmer "1.12.18"]
 
                  [nomnom/bunnicula "2.1.0"]
+                 [com.rabbitmq/amqp-client "5.8.0"]
+
                  [com.stuartsierra/component "0.4.0"]
                  [com.google.protobuf/protobuf-java "3.11.1"]
                  [clojusc/protobuf "3.5.1-v1.1"]

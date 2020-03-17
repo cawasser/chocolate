@@ -28,6 +28,7 @@
 (comment
 
   (env :broker-vhost)
+  (prn (env :broker-vhost))
 
   (connection)
   ())
