@@ -3,7 +3,8 @@
   (:require [chocolate.amqp.rab-conn :as connection]
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [chocolate.config :refer [env]]))
   ;(:import (java.net URI)))
 
 (defn- connection-url
@@ -31,6 +32,7 @@
     (assoc this :connection nil)))
 
 (defn extract-server-config
+  "If given a uri, parse it into a map of host port username and password"
   [{:keys [url host port username password vhost connection-name]}]
   {:post [#(string? (:host %))
           #(string? (:port %))
@@ -64,4 +66,42 @@
      - if not specified username is used as connection-name
      - {:url 'amqp://user:password@localhost:5492' :vhost 'main' :connection-name 'conn1'}"
   [config]
-  (map->Connection (extract-server-config config)))
+  ;(map->Connection (extract-server-config config))
+  (map->Connection config))
+
+
+
+(comment
+
+  (def cmap {:host (env :broker-host)
+             :port (env :broker-port)
+             :username (env :broker-username)
+             :password (env :broker-password)
+             :vhost (env :broker-vhost)})
+
+  (connection-url cmap)
+  (def cmap-url (connection-url cmap))
+  ;=> "amqp://username:password@host:port/%2Fvhost"
+  (def url (connection-url {:host "host"
+                            :port "port"
+                            :username "username"
+                            :password "password"
+                            :vhost "/vhost"}))
+
+  (extract-server-config url)
+  (extract-server-config cmap)
+  cmap
+
+
+
+
+  (def conn (connection/create cmap-url "hello"))
+
+
+  (def stop-parinfer 1))
+
+
+
+
+
+

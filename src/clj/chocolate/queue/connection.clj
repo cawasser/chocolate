@@ -1,6 +1,7 @@
 (ns chocolate.queue.connection
   (:require [com.stuartsierra.component :as component]
             [bunnicula.component.connection :as connection]
+            [chocolate.amqp.conn :as conn]
             [bunnicula.component.publisher :as publisher]
             [bunnicula.protocol :as protocol]
             [bunnicula.component.monitoring :as monitoring]
@@ -14,11 +15,11 @@
   (if (empty? @conn-atom)
     (do
       (log/info "opening borker connection")
-      (reset! conn-atom (connection/create {:host (env :broker-host)
-                                            :port (env :broker-port)
-                                            :username (env :broker-username)
-                                            :password (env :broker-password)
-                                            :vhost (env :broker-vhost)}))))
+      (reset! conn-atom (conn/create {:host (env :broker-host)
+                                      :port (env :broker-port)
+                                      :username (env :broker-username)
+                                      :password (env :broker-password)
+                                      :vhost (env :broker-vhost)}))))
 
   (log/info "returning broker connection " (:host @conn-atom))
   @conn-atom)
