@@ -1,10 +1,11 @@
 (ns chocolate.message-consumer
-  (:require [chocolate.db.core :as db]
+  (:require [chocolate.routes.edn-utils :as e]
             [chocolate.queue.consumer :as qc]
             [chocolate.protobuf.handlers :as h]
             [chocolate.processing :as proc]
             [chocolate.protobuf.utils :as utils]
             [clojure.edn :as edn]))
+
 
 
 (defn- call-consumer
@@ -55,7 +56,7 @@
 
   [id]
 
-  (if-let [{:keys [exchange queue pb_type msg_type dummy]} (db/get-consumer {:id id})]
+  (if-let [{:keys [exchange queue pb_type msg_type dummy]} (e/get-consumer {:id id})]
     (let [d (if (nil? dummy) (utils/get-from pb_type :dummy) dummy)]
      (do
        (prn "start-consumer " exchange ", " queue ", " msg_type ", " pb_type ", " dummy ", " d)
@@ -89,18 +90,18 @@
   @qc/consumers
 
 
-  (db/get-consumers)
+  (e/get-consumers)
 
-  (db/get-consumer {:id "100"})
+  (e/get-consumer {:id "100"})
 
-  (db/get-consumers-by-type {:msg_type "edn"})
-  (db/get-consumers-by-type {:msg_type "pb"})
+  (e/get-consumers-by-type {:msg_type "edn"})
+  (e/get-consumers-by-type {:msg_type "pb"})
 
-  (db/get-consumers-by-pb-type {:pb_type "Person"})
-  (db/get-consumers-by-pb-type {:pb_type "Message"})
+  (e/get-consumers-by-pb-type {:pb_type "Person"})
+  (e/get-consumers-by-pb-type {:pb_type "Message"})
 
 
-  (if-let [{:keys [exchange queue pb_type msg_type]} (db/get-consumer {:id id})]
+  (if-let [{:keys [exchange queue pb_type msg_type]} (e/get-consumer {:id id})]
     [exchange queue pb_type msg_type])
 
   (condp = msg_type
@@ -118,7 +119,7 @@
            (qc/create-consumer-for
              exchange queue (h/pb-handler proc/pb-processing-fn pb_type) msg_type)))
 
-  (if-let [{:keys [exchange queue pb_type msg_type]} (db/get-consumer {:id id})]
+  (if-let [{:keys [exchange queue pb_type msg_type]} (e/get-consumer {:id id})]
     (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
       (condp
         = msg_type

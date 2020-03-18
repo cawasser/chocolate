@@ -15,7 +15,7 @@
 
 (defn get-from [pb-type item]
   (if (empty? @pb-type-reg)
-    (reset! pb-type-reg (e/load-edn "edn/protobuf-types.edn")))
+    (reset! pb-type-reg (e/load-protobuf-types)))
 
   (get-in @pb-type-reg [pb-type item]))
 

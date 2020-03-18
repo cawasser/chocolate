@@ -1,0 +1,15 @@
+[{:id       "100"
+  :msg_type "edn"
+  :exchange "my-exchange"
+  :queue    "some.queue"
+  :pb_type  ""}
+ {:id       "200"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "person.queue"
+  :pb_type  "Person"}
+ {:id       "300"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "message.queue"
+  :pb_type  "Message"}]

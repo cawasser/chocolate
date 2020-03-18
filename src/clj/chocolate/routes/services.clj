@@ -11,7 +11,6 @@
     [chocolate.middleware.exception :as exception]
     [ring.util.http-response :refer :all]
     [clojure.tools.logging :as log]
-    [chocolate.db.core :as db]
     [chocolate.message-publisher :as mp]
     [chocolate.message-consumer :as mc]
     [chocolate.routes.edn-utils :as e]
@@ -69,19 +68,19 @@
     {:get {:summary   "return all messages in the database"
            :responses {200 {:body {:messages [{}]}}}
            :handler   (fn [_]
-                        (ok {:messages (db/get-messages)}))}}]
+                        (ok {:messages (e/get-messages)}))}}]
 
    ["/consumers"
     {:get {:summary   "return all consumers in the database"
            :responses {200 {:body {:consumers [{}]}}}
            :handler   (fn [_]
-                        (ok {:consumers (db/get-consumers)}))}}]
+                        (ok {:consumers (e/get-consumers)}))}}]
 
    ["/protobuf-types"
     {:get {:summary    "return all the protobuf-types"
            :responses  {200 {:body {:protobuf-types {}}}}
            :handler    (fn [_]
-                         (ok {:protobuf-types (e/load-edn "edn/protobuf-types.edn")}))}}]
+                         (ok {:protobuf-types (e/load-protobuf-types)}))}}]
 
    ["/get-protoc"
     {:post {:summary    "return the content of the selected protobuf type"
@@ -137,67 +136,3 @@
 
 
 
-(comment
-  (db/get-messages)
-  (db/get-user {:id "200"})
-
-  (db/clear-messages!)
-
-  (db/create-user! {:id         "200",
-                    :first_name "Steve",
-                    :last_name  "Dallas",
-                    :email      "steve@bloom.co",
-                    :pass       "123ABc"})
-
-  (do
-    (db/clear-messages!)
-    (db/create-message! {:id       "1"
-                         :msg_type "edn"
-                         :exchange "my-exchange"
-                         :queue    "some.queue"
-                         :pb_type  ""
-                         :content  {:user "Chris"}})
-    (db/create-message! {:id       "2"
-                         :msg_type "edn"
-                         :exchange "my-exchange"
-                         :queue    "some.queue"
-                         :pb_type  ""
-                         :content  {:user "Steve"}})
-    (db/create-message! {:id       "3"
-                         :msg_type "pb"
-                         :exchange "pb-exchange"
-                         :queue    "person.queue"
-                         :pb_type  "Person"
-                         :content  {:id 108
-                                    :name "Alice"
-                                    :email "alice@example.com"}})
-    (db/create-message! {:id       "4"
-                         :msg_type "pb"
-                         :exchange "pb-exchange"
-                         :queue    "message.queue"
-                         :pb_type  "Message"
-                         :content  {:sender {:name "Alice"}
-                                    :content "Hello from Alice"
-                                    :tags ["hello" "alice" "friends"]}}))
-  (db/get-messages)
-
-
-  (do
-    (db/create-consumer! {:id       "100"
-                          :msg_type "edn"
-                          :exchange "my-exchange"
-                          :queue    "some.queue"
-                          :pb_type  ""})
-    (db/create-consumer! {:id       "200"
-                          :msg_type "pb"
-                          :exchange "pb-exchange"
-                          :queue    "person.queue"
-                          :pb_type  "Person"})
-    (db/create-consumer! {:id       "300"
-                          :msg_type "pb"
-                          :exchange "pb-exchange"
-                          :queue    "message.queue"
-                          :pb_type  "Message"}))
-  (db/get-consumers)
-
-  ())
