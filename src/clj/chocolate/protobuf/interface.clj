@@ -67,21 +67,23 @@
 
 
 (comment
-  (def pb_type "Person")
-  (def java-class "com.example.tutorial.Example$Person")
+  (def pb_type "Message")
+  (def java-class "protobuf.examples.MessageOuterClass$Message")
+  (def java-class (utils/get-from pb_type :class))
 
   (def msg {:exchange "test-exchange"
             :content {:id 100 :name "testing" :testing "testing"}})
 
-  (def person {:id "3",
-               :msg_type "pb",
-               :exchange "pb-exchange",
-               :queue "person.queue",
-               :pb_type "Person",
-               :content {:id 108, :name "Alice", :email "alice@example.com"}})
+  (def message {:id "4",
+                :msg_type "pb",
+                :exchange "pb-exchange",
+                :queue "message.queue",
+                :pb_type "Message",
+                :content {:sender {:id 108, :name "Alice", :email "alice@example.com"}
+                          :content "message"}})
 
 
-  (protobuf/create (utils/class-for-name java-class) (:content person))
-  (encode-content person)
+  (protobuf/create (utils/class-for-name java-class) (:content message))
+  (encode-content message)
 
   ())

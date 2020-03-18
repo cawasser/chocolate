@@ -150,6 +150,7 @@
                     :pass       "123ABc"})
 
   (do
+    (db/clear-messages!)
     (db/create-message! {:id       "1"
                          :msg_type "edn"
                          :exchange "my-exchange"
@@ -175,7 +176,7 @@
                          :exchange "pb-exchange"
                          :queue    "message.queue"
                          :pb_type  "Message"
-                         :content  {:sender "Alice"
+                         :content  {:sender {:name "Alice"}
                                     :content "Hello from Alice"
                                     :tags ["hello" "alice" "friends"]}}))
   (db/get-messages)

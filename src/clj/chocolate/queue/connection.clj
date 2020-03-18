@@ -30,7 +30,7 @@
       (log/info "opening broker connection")
       (reset! conn-atom (make-connection))))
 
-  (log/info "returning rabbitmq connection " (:host @conn-atom))
+  (log/info "returning broker connection " (:host @conn-atom))
   @conn-atom)
 
 

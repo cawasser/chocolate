@@ -37,7 +37,7 @@
 
 
 (comment
-  (if-let [msg (db/get-message {:id "3"})]
+  (if-let [msg (db/get-message {:id "4"})]
     msg
     false)
   (db/get-message {:id "4"})
@@ -49,18 +49,20 @@
                :pb_type "Person",
                :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"})
 
-  (def message {:id "4",
-                :msg_type "pb",
-                :exchange "pb-exchange",
-                :queue "message.queue",
-                :pb_type "Message",
-                :content "{:sender \"Alice\", :content \"Hello from Alice\", :tags [\"hello\" \"alice\" \"friends\"]}"})
+  (def message
+    {:id "4",
+     :msg_type "pb",
+     :exchange "pb-exchange",
+     :queue "message.queue",
+     :pb_type "Message",
+     :content
+     "{:sender {:name \"Alice\"}, :content \"Hello from Alice\", :tags [\"hello\" \"alice\" \"friends\"]}"})
 
-  (chocolate.protobuf.interface/encode-content (pbe/preprocess-message person))
+  (chocolate.protobuf.interface/encode-content (pbe/preprocess-message message))
   (chocolate.protobuf.interface/encode-content (pbe/preprocess-message (db/get-message {:id "3"})))
 
   (qp/publish (chocolate.protobuf.interface/encode-content
-                (pbe/preprocess-message person)))
+                (pbe/preprocess-message message)))
   (qp/publish (chocolate.protobuf.interface/encode-content
                 (pbe/preprocess-message (db/get-message {:id "3"}))))
 

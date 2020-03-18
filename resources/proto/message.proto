@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package protobuf.examples;
+
+import "proto/extensions.proto";
+import "proto/person.proto";
+
+message Message {
+    Person sender = 1;
+    string content = 2;
+    repeated string tags = 3;
+}

@@ -181,6 +181,11 @@
        [modal/pub-modal flex-pub-active] ; modal panel for dynamically creating protobuf messages to send
        [modal/con-modal flex-con-active] ; modal panel for dynamically creating protobuf messages to send
 
+       [:button.button.is-info {:on-click #(do
+                                             (rf/dispatch [:load-messages])
+                                             (rf/dispatch [:load-consumers]))}
+        "Refresh UI"]
+
        [:button.button.is-warning {:on-click #(reset! flex-pub-active true)} "Flexible-publisher"]
        [:button.button.is-warning {:on-click #(reset! flex-con-active true)} "Flexible-consumer"]
 
@@ -196,7 +201,7 @@
                 (map (fn [m] ^{:key (:id m)}
                               [:div.tile.is-child.box
                                {:on-click #(publish-message m)}
-                               (str m)]) @messages))]]]]]
+                               (str (:id m) ", " (:exchange m) "/" (:queue m))]) @messages))]]]]]
 
          [:div.level-right {:style {:width "50%"}}
           [:h3 "Received:"

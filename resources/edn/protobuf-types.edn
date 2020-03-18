@@ -1,8 +1,6 @@
-{"Person" {:class "com.example.tutorial.Example$Person"
+{"Person" {:class "protobuf.examples.PersonOuterClass$Person"
            :protoc "resources/proto/person.proto"
-           :dummy {:id 0 :name "dummy"}}
- "Message" {:class "com.example.tutorial.Example$Message"
-            :protoc "resources/proto/person.proto"
-            :dummy {:sender "dummy" :content "dummy" :tags ["dummy"]}}
- "IM" {:class "com.example.tutorial.Example$IM"
-       :protoc "resources/proto/person.proto"}}
+           :dummy {}}
+ "Message" {:class "protobuf.examples.MessageOuterClass$Message"
+            :protoc "resources/proto/message.proto"
+            :dummy {}}}

@@ -156,6 +156,13 @@
 
 (comment
 
+  (def exchange "pb-exchange")
+  (def queue "message.queue")
+  (def msg_type "pb")
+
+
+
+
   (protocol/publish
     (:publisher (get-publisher-for "my-exchange"))
     "some.queue"

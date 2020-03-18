@@ -1,7 +1,8 @@
 (ns chocolate.protobuf.encoder
   (:require [protobuf.core :as protobuf])
             ;[chocolate.protobuf.interface :as pb-if])
-  (:import [com.example.tutorial Example Example$Person Example$Message]))
+  (:import protobuf.examples.PersonOuterClass$Person
+           protobuf.examples.MessageOuterClass$Message))
 
 
 (defn preprocess-content
@@ -30,12 +31,13 @@
                :pb_type "Person",
                :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"})
 
-  (def message {:id "4",
-                :msg_type "pb",
-                :exchange "pb-exchange",
-                :queue "message.queue",
-                :pb_type "Message",
-                :content "{:sender \"Alice\", :content \"Hello from Alice\", :tags [\"hello\" \"alice\" \"friends\"]}"})
+  (def message
+    {:id "4",
+     :msg_type "pb",
+     :exchange "pb-exchange",
+     :queue "message.queue",
+     :pb_type "Message",
+     :content "{:sender {:id 108, :name \"Alice\", :email \"alice@example.com\"}, :content \"Hello from Alice\" :tags [\"tag-2\"]}"})
 
   (:pb_type person)
   (clojure.core/read-string (:content person))
@@ -44,25 +46,40 @@
   (preprocess-message person)
 
   (->> {:id 108, :name "Alice", :email "alice@example.com"}
-    (protobuf/create Example$Person)
+    (protobuf/create PersonOuterClass$Person)
     (protobuf/->bytes))
 
   (->> "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"
     (preprocess-content)
-    (protobuf/create Example$Person)
+    (protobuf/create PersonOuterClass$Person)
     (protobuf/->bytes))
 
   (->> person
     (:content)
     (preprocess-content)
-    (protobuf/create Example$Person)
+    (protobuf/create PersonOuterClass$Person)
     (protobuf/->bytes))
 
   (def person-msg (->> person
                     (:content)
                     (preprocess-content)
-                    (protobuf/create Example$Person)
+                    (protobuf/create PersonOuterClass$Person)
                     (protobuf/->bytes)))
+
+  (def message-msg (->> message
+                        (:content)
+                        (preprocess-content)
+                        (protobuf/create MessageOuterClass$Message)
+                        (protobuf/->bytes)))
+
+  (def rt-message (->> message-msg
+                      (protobuf/bytes->
+                        (protobuf/create MessageOuterClass$Message {}))))
+  (type rt-message)
+  rt-message
+
+
+  (require '[chocolate.protobuf.interface :as pb-if])
   ;(pb-if/decode-content "Person" person-msg)
 
   (pb-if/encode-content person)
@@ -71,31 +88,5 @@
   (preprocess-content (:content person))
 
   (pb-if/decode-content "Message" (:content (pb-if/encode-content  message)))
-
-  ())
-
-
-(comment
-  (def im-content {:sender {:id 100 :name "Chris"}
-                   :content {:sender "Chris"
-                             :content "Here is an embedded message"
-                             :tags ["tag1"]}})
-
-  (def im-msg {:exchange "pb-exchange"
-               :queue "im"
-               :msg_type "pb"
-               :pb_type "IM"
-               :content im-content})
-
-  (:pb_type im-msg)
-
-  (require '[chocolate.protobuf.interface :as pb-if])
-
-  (def enc (pb-if/encode-content im-content))
-
-  (pb-if/decode-content "IM" (:content (pb-if/encode-content  im-msg)))
-  (pb-if/encode-content im-content)
-
-
 
   ())
