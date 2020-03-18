@@ -4,7 +4,8 @@
 
 
 
-; directly from https://clojuredocs.org/clojure.edn/read)
+; directly from https://clojuredocs.org/clojure.edn/read) and
+; https://clojuredocs.org/clojure.java.io/resource
 (defn load-edn
     "Load edn from an io/reader source (filename or io/resource)."
     [source]
@@ -44,7 +45,6 @@
 
   (if-let [r (io/resource source)]
     (edn/read-string (slurp r)))
-
 
   (load-text-file "resources/proto/person.proto")
 
