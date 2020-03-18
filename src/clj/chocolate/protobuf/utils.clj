@@ -5,8 +5,8 @@
 
 (defonce pb-type-reg (atom {}))
 
-(defmacro import-by-name [name]
-  `(import '[~name]))
+(defn import-by-name [name]
+  (.importClass (the-ns *ns*) (RT/classForName name)))
 
 
 (defn class-for-name [name]
@@ -15,7 +15,7 @@
 
 (defn get-from [pb-type item]
   (if (empty? @pb-type-reg)
-    (reset! pb-type-reg (e/load-edn "resources/edn/protobuf-types.edn")))
+    (reset! pb-type-reg (e/load-edn "edn/protobuf-types.edn")))
 
   (get-in @pb-type-reg [pb-type item]))
 

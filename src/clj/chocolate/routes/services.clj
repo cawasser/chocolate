@@ -81,7 +81,7 @@
     {:get {:summary    "return all the protobuf-types"
            :responses  {200 {:body {:protobuf-types {}}}}
            :handler    (fn [_]
-                         (ok {:protobuf-types (e/load-edn "resources/edn/protobuf-types.edn")}))}}]
+                         (ok {:protobuf-types (e/load-edn "edn/protobuf-types.edn")}))}}]
 
    ["/get-protoc"
     {:post {:summary    "return the content of the selected protobuf type"

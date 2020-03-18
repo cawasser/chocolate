@@ -53,7 +53,8 @@
                         (parse-opts cli-options)
                         mount/start-with-args
                         :started)]
-    (log/info component "started"))
+    (log/info component "started")
+    (prn component " started"))
   (log/info "version " (version/get-version
                          "chocolate"
                          "chocolate"
