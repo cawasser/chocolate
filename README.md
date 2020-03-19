@@ -22,13 +22,11 @@ You will also need to add `dev-config.edn` to the main project folder, containin
  :port 3000
  :nrepl-port 7000
 
- :database-url "jdbc:sqlite:chocolate_dev.db"
- 
- :rabbit-host "127.0.0.1"
- :rabbit-port 5672
- :rabbit-username "guest"
- :rabbit-password "guest"
- :rabbit-vhost "/main"}
+ :broker-host "127.0.0.1"
+ :broker-port 5672
+ :broker-username "guest"
+ :broker-password "guest"
+ :broker-vhost "/main"}
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
@@ -80,6 +78,159 @@ Then, in another terminal/powershell window, run the client:
 ## Using the Client
 
 [link](docs/client.md)
+
+## Working Without a Database
+
+This release of Chocolate does not use the database. All information is contained in EDN files.
+
+1. [protobuf-types.edn](resources/edn/protobuf-types.edn)
+2. [consumer-types.edn](resources/edn/consumer-types.edn)
+3. [publisher-types.edn](resources/edn/publisher-types.edn)
+
+We will discuss each file.
+
+#### protobuf.edn
+
+The default content is:
+``` clojure
+{"Person" {:class "protobuf.examples.PersonOuterClass$Person"
+           :protoc "resources/proto/person.proto"
+           :dummy {}}
+ "Message" {:class "protobuf.examples.MessageOuterClass$Message"
+            :protoc "resources/proto/message.proto"
+            :dummy {}}}
+```
+This file described the mapping between the "short name" of the type (the key) and (as the value) the protocol buffer Java type (`:class`), the *.proto source
+file (`:protoc`) and the "dummy" value needed by the [clojusc/protobuf](https://github.com/clojusc/protobuf) library for getting the
+Java type back from it's binary representation (marshalling)
+
+This file is used both internally by the marshalling and unmarshalling code as well as the user-facing
+"Flexible-publisher" and "Flexible-consumer" modal UI.
+
+#### consumer-types.edn
+
+The default content is:
+``` clojure
+[{:id       "100"
+  :msg_type "edn"
+  :exchange "my-exchange"
+  :queue    "some.queue"
+  :pb_type  ""}
+ {:id       "200"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "person.queue"
+  :pb_type  "Person"}
+ {:id       "300"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "message.queue"
+  :pb_type  "Message"}]
+```
+This file describes a collection (vector) of configuration data needed to establish an AMQP consumer using [Bunnicula](https://github.com/nomnom-insights/nomnom.bunnicula).
+Each hash-map defines the _exchange_ and _queue_ for connecting to the broker. `:msg_type` and `:pb_type` are used to resolve
+how each message in Clojure format should be handled. Our goal is to work in clojure/edn and leave the conversion into and out-of
+protocol buffers to lower-levels of software.
+
+`:msg_type` identified EDN message, which require no additional processing. Bunnicula automatically marshalls the data into and
+out-of JSON for transmission over AMQP.
+
+`:pb_type` identifies the "short name" of the actual protocol buffer Java type to be used. This _must_ match the "short name" used  
+as the key in `protobuf-types.edn`'
+
+Handlers are implemented for each consumer. By default the handler decodes the received message and retransmits it to all connected
+clients over websockets (using [sente](https://github.com/ptaoussanis/sente)). The handler for "Message" is different. IN addition
+to sending the decoded message to the clients, it aslo retransmit the message onto _some.queue_. This means that all "Message"
+messages will also be received by the "EDN" consumer (assuming one has been started).
+
+
+#### publisher-types.edn
+
+The default content is:
+``` clojure
+[{:id       "1"
+  :msg_type "edn"
+  :exchange "my-exchange"
+  :queue    "some.queue"
+  :pb_type  ""
+  :content  {:user "Chris"}}
+  
+  ; ... elided 
+  
+ {:id       "3"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "person.queue"
+  :pb_type  "Person"
+  :content  {:id    108
+             :name  "Alice"
+             :email "alice@example.com"}}
+             
+ ;... elided 
+]
+```
+
+This file describes a collection (vector) of configuration data needed to publish a message using [Bunnicula](https://github.com/nomnom-insights/nomnom.bunnicula).
+Each hash-map defines the _exchange_ and _queue_ tom publish on. `:msg_type` and `:pb_type` are used to resolve
+how each message in Clojure format should be handled. Our goal is to work in clojure/edn and leave the conversion into and out-of
+protocol buffers to lower-levels of software.
+
+`:content` defined an EDN data structure of the actual message content to publish. In the case of `:msg_type "edn"` the content
+will be converted to JSON automatically by Bunnicula before publishing. In the case where `:msg_type "pb"` the `:pb_type` value is
+used to determin the specific protocol buffer Java type ot use for the marshalling. The value of the `:pb_type` key _must_
+match the "short name" in `protobuf-types.edn`.
+
+> Note: "nested" protocol buffer types are defined as nested EDN data structures
+
+### "Local" messages
+
+In addition to the protobuf type data stored in the "default" files listed above, each file can had a _local_ variant. This allows
+the develop to work on private, possibly proprietary, message formats without polluting the global repo.
+
+| Default types         | "Optional" types (not in repo) |
+|-----------------------|-----------------------------|
+| `protobuf-types.edn`  | `protobuf-type-local.edn`   |
+| `consumer-types.edn`  | `consumer-types-local.edn`  |
+| `publisher-types.edn` | `publisher-types-local.edn` |
+
+
+> NOTE: Do _*NOT*_ push the `*-local.edn` files to the repo!!!!!
+
+## One More Thing...
+
+In order to support additional "local" protocol buffer Java types, it is required for you to create a local
+`local_protobuf.clj` file with the following content:
+
+``` clojure
+(ns chocolate.protobuf.local-protobuf
+  (:require [your.local.protobuf.support.namespaces]))
+```
+
+Although you _*must*_ add this file to your local project (and _not_ push it to the repo), you only need to add  
+`:requires` for namespaces that help you with your "local" protobuf types. For example, if you have a protobuf type like:
+
+``` protoc
+import "DataPoint.proto"
+message Sample
+    string id = 1;
+    repeated DataPoint = 2;
+```
+
+and you write a helper function to generate large number of `DataPoint` instances to fill it:
+
+``` clojure
+(ns sample.helpers)
+
+(defn make-data-point []
+  {:data "some value"})
+  
+(defn make-sample [id num-points]
+   {:id id :data-point (into [] (for [i (range num-points)] (make-data-point)))})   
+```
+
+you would add the "sample.sample" namespace as a dependency to `local_protobuf.clj`
+
+> NOTE: Again, do _*not*_ push this file to then repo. You could be "leaking" proprietary information!
 
 ## Using Swagger-UI
 
