@@ -5,6 +5,8 @@
 pom.xml
 dev-config.edn
 test-config.edn
+local_protobuf.clj
+*-local.edn
 *.jar
 *.class
 /.lein-*
