@@ -7,16 +7,16 @@
 ; directly from https://clojuredocs.org/clojure.edn/read) and
 ; https://clojuredocs.org/clojure.java.io/resource
 (defn load-edn
-    "Load edn from an io/reader source (filename or io/resource)."
-    [source]
-    (try
-      (if-let [r (io/resource source)]
-        (edn/read-string (slurp r)))
+  "Load edn from an io/reader source (filename or io/resource)."
+  [source]
+  (try
+    (if-let [r (io/resource source)]
+      (edn/read-string (slurp r)))
 
-      (catch java.io.IOException e
-        {:error "Couldn't open '%s': %s\n" source (.getMessage e)})
-      (catch RuntimeException e
-        {:error "Error parsing edn file '%s': %s\n" source (.getMessage e)})))
+    (catch java.io.IOException e
+      {:error "Couldn't open '%s': %s\n" source (.getMessage e)})
+    (catch RuntimeException e
+      {:error "Error parsing edn file '%s': %s\n" source (.getMessage e)})))
 
 
 (defn load-text-file
@@ -25,7 +25,7 @@
   (try
     (-> source
         slurp)
-        ;(clojure.string/replace "\r" "\n"))
+    ;(clojure.string/replace "\r" "\n"))
 
     (catch java.io.IOException e
       {:error "Couldn't open '%s': %s\n" source (.getMessage e)})
@@ -44,27 +44,22 @@
          (load-edn "edn/protobuf-types-local.edn")))
 
 
-(def messages (atom []))
-(def consumers (atom []))
-
 (defn get-messages []
-  (if (empty? @messages)
-    (reset! messages (into []
-                           (concat
-                             (load-edn "edn/publisher-types.edn")
-                             (load-edn "edn/publisher-types-local.edn"))))
-    @messages))
+  (into []
+        (concat
+          (load-edn "edn/publisher-types.edn")
+          (load-edn "edn/publisher-types-local.edn"))))
+
 
 (defn get-message [{:keys [id]}]
   (first (filter #(= id (:id %)) (get-messages))))
 
 (defn get-consumers []
-  (if (empty? @consumers)
-    (reset! consumers (into []
-                            (concat
-                              (load-edn "edn/consumer-types.edn")
-                              (load-edn "edn/consumer-types-local.edn"))))
-    @consumers))
+  (into []
+        (concat
+          (load-edn "edn/consumer-types.edn")
+          (load-edn "edn/consumer-types-local.edn"))))
+
 
 (defn get-consumer [{:keys [id]}]
   (first (filter #(= id (:id %)) (get-consumers))))
