@@ -81,13 +81,13 @@ Then, in another terminal/powershell window, run the client:
 
 ## Working Without a Database
 
-This release of Chocolate does not use the database. All information is contained in EDN files.
+This release of Chocolate does not use a database. All configuration information for both the server and the UI is contained in EDN files.
 
 1. [protobuf-types.edn](resources/edn/protobuf-types.edn)
 2. [consumer-types.edn](resources/edn/consumer-types.edn)
 3. [publisher-types.edn](resources/edn/publisher-types.edn)
 
-We will discuss each file.
+We will discuss each file separately.
 
 #### protobuf.edn
 
@@ -100,12 +100,11 @@ The default content is:
             :protoc "resources/proto/message.proto"
             :dummy {}}}
 ```
-This file described the mapping between the "short name" of the type (the key) and (as the value) the protocol buffer Java type (`:class`), the *.proto source
+This file describes the mapping between the "short name" of the type (the key) and (as the value) the protocol buffer Java type (`:class`), the *.proto source
 file (`:protoc`) and the "dummy" value needed by the [clojusc/protobuf](https://github.com/clojusc/protobuf) library for getting the
 Java type back from it's binary representation (marshalling)
 
-This file is used both internally by the marshalling and unmarshalling code as well as the user-facing
-"Flexible-publisher" and "Flexible-consumer" modal UI.
+This file is used both internally by the marshalling and unmarshalling code as well as the user-facing "Flexible-publisher" and "Flexible-consumer" modal UI.
 
 #### consumer-types.edn
 
@@ -132,15 +131,15 @@ Each hash-map defines the _exchange_ and _queue_ for connecting to the broker. `
 how each message in Clojure format should be handled. Our goal is to work in clojure/edn and leave the conversion into and out-of
 protocol buffers to lower-levels of software.
 
-`:msg_type` identified EDN message, which require no additional processing. Bunnicula automatically marshalls the data into and
+`:msg_type` identifies EDN message, which require no additional processing. Bunnicula automatically marshalls the data into and
 out-of JSON for transmission over AMQP.
 
-`:pb_type` identifies the "short name" of the actual protocol buffer Java type to be used. This _must_ match the "short name" used  
+`:pb_type` identifies the "short name" of the actual protocol buffer Java type to be used. This _must_ match the "short name" usedf
 as the key in `protobuf-types.edn`'
 
-Handlers are implemented for each consumer. By default the handler decodes the received message and retransmits it to all connected
-clients over websockets (using [sente](https://github.com/ptaoussanis/sente)). The handler for "Message" is different. IN addition
-to sending the decoded message to the clients, it aslo retransmit the message onto _some.queue_. This means that all "Message"
+Handlers are implemented for each consumer. By default, the handler decodes the received message and retransmits it to all connected
+clients over websockets (using [sente](https://github.com/ptaoussanis/sente)). The handler for "Message" is different. In addition
+to sending the decoded message to the clients, it also publishes the message onto _some.queue_. This means that all "Message"
 messages will also be received by the "EDN" consumer (assuming one has been started).
 
 
@@ -166,25 +165,25 @@ The default content is:
              :name  "Alice"
              :email "alice@example.com"}}
              
- ;... elided 
+  ;... elided 
 ]
 ```
 
 This file describes a collection (vector) of configuration data needed to publish a message using [Bunnicula](https://github.com/nomnom-insights/nomnom.bunnicula).
-Each hash-map defines the _exchange_ and _queue_ tom publish on. `:msg_type` and `:pb_type` are used to resolve
+Each hash-map defines the _exchange_ and _queue_ to publish the message on. `:msg_type` and `:pb_type` are used to resolve
 how each message in Clojure format should be handled. Our goal is to work in clojure/edn and leave the conversion into and out-of
 protocol buffers to lower-levels of software.
 
-`:content` defined an EDN data structure of the actual message content to publish. In the case of `:msg_type "edn"` the content
-will be converted to JSON automatically by Bunnicula before publishing. In the case where `:msg_type "pb"` the `:pb_type` value is
-used to determin the specific protocol buffer Java type ot use for the marshalling. The value of the `:pb_type` key _must_
+`:content` defines an EDN data structure of the actual message content to publish. In the case of `:msg_type = "edn"` the content
+will be converted to JSON automatically by Bunnicula before publishing. In the case where `:msg_type = "pb"` the `:pb_type` value is
+used to determine the specific protocol buffer Java type to use for the marshalling. The value of the `:pb_type` key _must_
 match the "short name" in `protobuf-types.edn`.
 
-> Note: "nested" protocol buffer types are defined as nested EDN data structures
+> Note: "nested" protocol buffer types are defined using nested EDN data structures
 
 ### "Local" messages
 
-In addition to the protobuf type data stored in the "default" files listed above, each file can had a _local_ variant. This allows
+In addition to the protobuf type data stored in the "default" files listed above, each file can have a _local_ variant. This allows
 the develop to work on private, possibly proprietary, message formats without polluting the global repo.
 
 | Default types         | "Optional" types (not in repo) |
@@ -196,6 +195,8 @@ the develop to work on private, possibly proprietary, message formats without po
 
 > NOTE: Do _*NOT*_ push the `*-local.edn` files to the repo!!!!!
 
+*-local.edn files are entirely optional. If they are missing, the app still runs, just with only the base configuration.
+
 ## One More Thing...
 
 In order to support additional "local" protocol buffer Java types, it is required for you to create a local
@@ -206,7 +207,7 @@ In order to support additional "local" protocol buffer Java types, it is require
   (:require [your.local.protobuf.support.namespaces]))
 ```
 
-Although you _*must*_ add this file to your local project (and _not_ push it to the repo), you only need to add  
+Although you _*must*_ add this file to your local project (and _not_ push it to the repo), you only need to add
 `:requires` for namespaces that help you with your "local" protobuf types. For example, if you have a protobuf type like:
 
 ``` protoc
@@ -216,7 +217,7 @@ message Sample
     repeated DataPoint = 2;
 ```
 
-and you write a helper function to generate large number of `DataPoint` instances to fill it:
+and you write a helper function to generate a large number of `DataPoint` instances to fill it:
 
 ``` clojure
 (ns sample.helpers)
@@ -228,9 +229,15 @@ and you write a helper function to generate large number of `DataPoint` instance
    {:id id :data-point (into [] (for [i (range num-points)] (make-data-point)))})   
 ```
 
-you would add the "sample.sample" namespace as a dependency to `local_protobuf.clj`
+you would add the "sample.sample" namespace as a dependency to `local_protobuf.clj`:
 
-> NOTE: Again, do _*not*_ push this file to then repo. You could be "leaking" proprietary information!
+```
+(ns chocolate.protobuf.local-protobuf
+  (:require [sample.sample]))
+```
+
+
+> NOTE: Again, do _*not*_ push this file to the repo. You could be "leaking" proprietary information!
 
 ## Using Swagger-UI
 
