@@ -14,14 +14,22 @@
 (defn connection []
   (if (empty? @conn-atom)
     (do
-      (log/info "opening borker connection")
-      (reset! conn-atom (conn/create {:host (env :broker-host)
-                                      :port (env :broker-port)
-                                      :username (env :broker-username)
-                                      :password (env :broker-password)
-                                      :vhost (env :broker-vhost)}))))
+      (case (env :broker) ;; Create a connection based on intended broker
+            :qpid (do
+                    (log/info "opening qpid connection")
+                    (reset! conn-atom (conn/create {:url (env :qpid-url)
+                                                    :connection-name "connection-name"})))
+            :rabbit (do
+                      (log/info "opening rabbit connection")
+                      (reset! conn-atom (conn/create {:url nil
+                                                      :host (env :broker-host)
+                                                      :port (env :broker-port)
+                                                      :username (env :broker-username)
+                                                      :password (env :broker-password)
+                                                      :vhost (env :broker-vhost)
+                                                      :connection-name "connection-name"}))))))
 
-  (log/info "returning broker connection " (:host @conn-atom))
+  (log/info "returning broker connection " (:connection-name @conn-atom))
   @conn-atom)
 
 
@@ -32,6 +40,13 @@
   (prn (env :broker-vhost))
 
   (connection)
+
+
+
+  (case (env :broker)
+    :qpid (do
+            (prn "x"))
+    :rabbit :y)
   ())
 
 
