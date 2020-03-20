@@ -24,11 +24,16 @@ You will also need to add `dev-config.edn` to the main project folder, containin
 
  :database-url "jdbc:sqlite:chocolate_dev.db"
  
+ :broker :rabbit
+
  :broker-host "127.0.0.1"
  :broker-port 5672
  :broker-username "guest"
  :broker-password "guest"
- :broker-vhost "/main"}
+ :broker-vhost "/main"
+
+ :broker-url "amqp://guest:guest@localhost:5672"
+ :qpid-url "amqp://guest:guest@localhost/default?brokerlist='tcp://localhost:5672'"}
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
