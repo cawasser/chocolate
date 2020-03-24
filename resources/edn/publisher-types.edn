@@ -1,0 +1,28 @@
+[{:id       "1"
+  :msg_type "edn"
+  :exchange "my-exchange"
+  :queue    "some.queue"
+  :pb_type  ""
+  :content  {:user "Chris"}}
+ {:id       "2"
+  :msg_type "edn"
+  :exchange "my-exchange"
+  :queue    "some.queue"
+  :pb_type  ""
+  :content  {:user "Steve"}}
+ {:id       "3"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "person.queue"
+  :pb_type  "Person"
+  :content  {:id    108
+             :name  "Alice"
+             :email "alice@example.com"}}
+ {:id       "4"
+  :msg_type "pb"
+  :exchange "pb-exchange"
+  :queue    "message.queue"
+  :pb_type  "Message"
+  :content  {:sender  {:name "Alice"}
+             :content "Hello from Alice"
+             :tags    ["hello" "alice" "friends"]}}]

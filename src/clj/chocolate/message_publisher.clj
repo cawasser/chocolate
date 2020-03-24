@@ -1,5 +1,5 @@
 (ns chocolate.message-publisher
-  (:require [chocolate.db.core :as db]
+  (:require [chocolate.routes.edn-utils :as e]
             [chocolate.queue.publisher :as qp]
             [chocolate.protobuf.interface :as pb]
             [chocolate.protobuf.encoder :as pbe]))
@@ -27,9 +27,9 @@
    about the message: the exchange, the queue, and the message encoding type, are taken form
    the database"
   [id]
-  (if-let [msg (db/get-message {:id id})]
+  (if-let [msg (e/get-message {:id id})]
     (-> msg
-        (pbe/preprocess-message)
+        ;(pbe/preprocess-message)
         (publish-message-raw))
     {:success false :id id}))
 
@@ -37,10 +37,10 @@
 
 
 (comment
-  (if-let [msg (db/get-message {:id "4"})]
+  (if-let [msg (e/get-message {:id "4"})]
     msg
     false)
-  (db/get-message {:id "4"})
+  (e/get-message {:id "4"})
 
   (def person {:id "3",
                :msg_type "pb",
@@ -59,16 +59,17 @@
      "{:sender {:name \"Alice\"}, :content \"Hello from Alice\", :tags [\"hello\" \"alice\" \"friends\"]}"})
 
   (chocolate.protobuf.interface/encode-content (pbe/preprocess-message message))
-  (chocolate.protobuf.interface/encode-content (pbe/preprocess-message (db/get-message {:id "3"})))
+  (chocolate.protobuf.interface/encode-content (pbe/preprocess-message (e/get-message {:id "3"})))
 
   (qp/publish (chocolate.protobuf.interface/encode-content
                 (pbe/preprocess-message message)))
   (qp/publish (chocolate.protobuf.interface/encode-content
-                (pbe/preprocess-message (db/get-message {:id "3"}))))
+                (pbe/preprocess-message (e/get-message {:id "3"}))))
 
   (publish-message "1")
   (publish-message "3")
 
+  (def id "1")
 
   ())
 
