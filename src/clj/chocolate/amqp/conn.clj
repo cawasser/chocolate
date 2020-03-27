@@ -28,7 +28,7 @@
       (do  ;; else create a connection
           (if (some? url)
             (let [conn (connection/create url connection-name)]
-              (log/infof "connection start, name=%s vhost=%s" connection-name vhost)
+              (log/infof "connection start, name=%s url=%s" connection-name url)
               (assoc this :connection conn))
             (let [new-url (connection-url {:host host
                                            :port port
@@ -36,7 +36,7 @@
                                            :password password
                                            :vhost vhost})
                   conn (connection/create new-url connection-name)]
-              (log/infof "connection start, name=%s vhost=%s" connection-name vhost)
+              (log/infof "connection start, name=%s url=%s" connection-name new-url)
               (assoc this :connection conn))))))
   (stop [this]
     (log/infof "connection stop, name=%s" connection-name)

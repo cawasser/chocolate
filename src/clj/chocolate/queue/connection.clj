@@ -18,7 +18,7 @@
             :qpid (do
                     (log/info "opening qpid connection")
                     (reset! conn-atom (conn/create {:url (env :qpid-url)
-                                                    :connection-name "connection-name"})))
+                                                    :connection-name "qpid-connection-name"})))
             :rabbit (do
                       (log/info "opening rabbit connection")
                       (reset! conn-atom (conn/create {:url nil
@@ -27,7 +27,7 @@
                                                       :username (env :broker-username)
                                                       :password (env :broker-password)
                                                       :vhost (env :broker-vhost)
-                                                      :connection-name "connection-name"}))))))
+                                                      :connection-name "rabbit-connection-name"}))))))
 
   (log/info "returning broker connection " (:connection-name @conn-atom))
   @conn-atom)
