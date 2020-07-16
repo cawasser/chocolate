@@ -44,6 +44,7 @@
                  [selmer "1.12.18"]
 
                  [nomnom/bunnicula "2.1.0"]
+                 [clojms/CloJMS "0.0.2"]
                  [com.stuartsierra/component "0.4.0"]
                  [com.google.protobuf/protobuf-java "3.11.1"]
                  [clojusc/protobuf "3.5.1-v1.1"]
@@ -89,18 +90,18 @@
              :prep-tasks ["protobuf" "compile" ["cljsbuild" "once" "min"]]
              :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]
              :cljsbuild{:builds
-              {:min
-               {:source-paths ["src/cljc" "src/cljs" "env/prod/cljs"]
-                :compiler
-                {:output-dir "target/cljsbuild/public/js"
-                 :output-to "target/cljsbuild/public/js/app.js"
-                 :source-map "target/cljsbuild/public/js/app.js.map"
-                 :optimizations :advanced
-                 :pretty-print false
-                 :infer-externs true
-                 :closure-warnings
-                 {:externs-validation :off :non-standard-jsdoc :off}
-                 :externs ["react/externs/react.js"]}}}}
+                        {:min
+                         {:source-paths ["src/cljc" "src/cljs" "env/prod/cljs"]
+                          :compiler
+                          {:output-dir "target/cljsbuild/public/js"
+                           :output-to "target/cljsbuild/public/js/app.js"
+                           :source-map "target/cljsbuild/public/js/app.js.map"
+                           :optimizations :advanced
+                           :pretty-print false
+                           :infer-externs true
+                           :closure-warnings
+                           {:externs-validation :off :non-standard-jsdoc :off}
+                           :externs ["react/externs/react.js"]}}}}
 
              :aot :all
              :uberjar-name "chocolate.jar"
@@ -126,20 +127,20 @@
                                  [lein-doo "0.1.11"]
                                  [lein-figwheel "0.5.19"]]
                   :cljsbuild{:builds
-                   {:app
-                    {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
-                     :figwheel {:on-jsload "chocolate.core/mount-components"}
-                     :compiler
-                     {:output-dir "target/cljsbuild/public/js/out"
-                      :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true
-                                        "day8.re_frame.tracing.trace_enabled_QMARK_"  true}
-                      :optimizations :none
-                      :preloads [day8.re-frame-10x.preload]
-                      :output-to "target/cljsbuild/public/js/app.js"
-                      :asset-path "/js/out"
-                      :source-map true
-                      :main chocolate.core ;"chocolate.app"
-                      :pretty-print true}}}}
+                             {:app
+                              {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
+                               :figwheel {:on-jsload "chocolate.core/mount-components"}
+                               :compiler
+                               {:output-dir "target/cljsbuild/public/js/out"
+                                :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true
+                                                  "day8.re_frame.tracing.trace_enabled_QMARK_"  true}
+                                :optimizations :none
+                                :preloads [day8.re-frame-10x.preload]
+                                :output-to "target/cljsbuild/public/js/app.js"
+                                :asset-path "/js/out"
+                                :source-map true
+                                :main chocolate.core ;"chocolate.app"
+                                :pretty-print true}}}}
 
 
                   :doo {:build "test"}
@@ -158,8 +159,8 @@
                      {:output-to "target/test.js"
                       :main "chocolate.doo-runner"
                       :optimizations :whitespace
-                      :pretty-print true}}}}
+                      :pretty-print true}}}}}
 
-                  }
+
    :profiles/dev {}
    :profiles/test {}})
