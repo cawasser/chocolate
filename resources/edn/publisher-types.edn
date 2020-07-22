@@ -1,17 +1,20 @@
 [{:id       "1"
   :msg_type "edn"
+  :pub-fn   chocolate.amqp.rabbit.publisher/publish
   :exchange "my-exchange"
   :queue    "some.queue"
   :pb_type  ""
   :content  {:user "Chris"}}
  {:id       "2"
   :msg_type "edn"
+  :pub-fn   chocolate.amqp.rabbit.publisher/publish
   :exchange "my-exchange"
   :queue    "some.queue"
   :pb_type  ""
   :content  {:user "Steve"}}
  {:id       "3"
   :msg_type "pb"
+  :pub-fn   chocolate.amqp.rabbit.publisher/publish
   :exchange "pb-exchange"
   :queue    "person.queue"
   :pb_type  "Person"
@@ -20,9 +23,16 @@
              :email "alice@example.com"}}
  {:id       "4"
   :msg_type "pb"
+  :pub-fn   chocolate.amqp.rabbit.publisher/publish
   :exchange "pb-exchange"
   :queue    "message.queue"
   :pb_type  "Message"
   :content  {:sender  {:name "Alice"}
              :content "Hello from Alice"
-             :tags    ["hello" "alice" "friends"]}}]
+             :tags    ["hello" "alice" "friends"]}}
+ {:id       "5"
+  :msg_type "edn"
+  :pub-fn   chocolate.amqp.jms.publisher/publish
+  :queue    "some"
+  :pb_type  ""
+  :content  {:user "Steve"}}]

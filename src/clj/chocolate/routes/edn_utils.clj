@@ -105,4 +105,20 @@
              (load-edn "edn/publisher-types.edn")
              (load-edn "edn/dummy.edn")))
 
+  (def pub-data (load-edn "edn/publisher-types.edn"))
+
+  (:pub-fn pub-data)
+  (map :pub-fn pub-data)
+
+  (defn get-pub [id]
+    (first (filter #(= id (:id %)) (load-edn "edn/publisher-types.edn"))))
+
+  (def msg1 (get-message {:id "1"}))
+  (def msg2 (get-message {:id "2"}))
+
+
+  ((eval (:pub-fn msg2)) msg1)
+  ((eval (:pub-fn msg1)) {:id "2"})
+
+
   ())

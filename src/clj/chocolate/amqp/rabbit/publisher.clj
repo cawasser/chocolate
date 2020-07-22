@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component]
             [bunnicula.component.publisher :as publisher]
             [bunnicula.protocol :as protocol]
-            [chocolate.queue.connection :as conn]
+            [chocolate.amqp.rabbit.connection :as conn]
             [chocolate.protobuf.encoder :as encoder]))
 
 
@@ -33,10 +33,10 @@
    return - 'stuart sierra component' for later use"
   [publisher]
   (component/system-map
+    :rmq-connection (conn/connection)
     :publisher (component/using
                  publisher
-                 [:connection])
-    :connection (conn/connection)))
+                 [:rmq-connection])))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -81,36 +81,7 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; PUBLIC INTERFACE
-;
 
-
-(defn start-publisher-for
-  "start an already existing publisher (useful in the REPL)
-
-  NOTE: normally you do NOT need to call this function
-
-  exchange - the name of the exchange supported by the publisher"
-  [exchange]
-  (component/start-system (get @publishers exchange)))
-
-(defn stop-publisher-for
-  "stop an already existing publisher (useful in the REPL)
-
-   NOTE: normally you do NOT need to call this function
-
-    exchange - the name of the exchange supported by the publisher"
-  [exchange]
-  (component/stop-system (get @publishers exchange)))
-
-(defn clear-registry
-  "clears all registered publishers form the registry, stopping them before they are removed"
-  []
-  (for [p @publishers]
-    (component/stop-system p))
-  (reset! publishers {}))
 
 
 (defn publish
@@ -148,6 +119,38 @@
 
 
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; THESE ARE NOT USED
+;
+
+
+(defn start-publisher-for
+  "start an already existing publisher (useful in the REPL)
+
+  NOTE: normally you do NOT need to call this function
+
+  exchange - the name of the exchange supported by the publisher"
+  [exchange]
+  (component/start-system (get @publishers exchange)))
+
+(defn stop-publisher-for
+  "stop an already existing publisher (useful in the REPL)
+
+   NOTE: normally you do NOT need to call this function
+
+    exchange - the name of the exchange supported by the publisher"
+  [exchange]
+  (component/stop-system (get @publishers exchange)))
+
+(defn clear-registry
+  "clears all registered publishers form the registry, stopping them before they are removed"
+  []
+  (for [p @publishers]
+    (component/stop-system p))
+  (reset! publishers {}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

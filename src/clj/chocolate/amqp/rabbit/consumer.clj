@@ -3,7 +3,7 @@
             [com.stuartsierra.component :as component]
             [bunnicula.component.consumer-with-retry :as consumer]
             [bunnicula.component.monitoring :as monitoring]
-            [chocolate.queue.connection :as conn]
+            [chocolate.amqp.rabbit.connection :as conn]
             [chocolate.protobuf.handlers :as h]))
 
 
@@ -41,7 +41,7 @@
    return - 'stuart sierra component' for later use"
   [consumer]
   (component/system-map
-    :connection (conn/connection)
+    :rmq-connection (conn/connection)
     :monitoring monitoring/BaseMonitoring
     :consumer (component/using
                 consumer

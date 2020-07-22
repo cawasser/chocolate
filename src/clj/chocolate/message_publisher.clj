@@ -2,22 +2,26 @@
   (:require [chocolate.routes.edn-utils :as e]
             [chocolate.queue.publisher :as qp]
             [chocolate.protobuf.interface :as pb]
-            [chocolate.protobuf.encoder :as pbe]))
+            [chocolate.protobuf.encoder :as pbe]
+            [chocolate.amqp.rabbit.publisher :as rab]
+            [chocolate.amqp.jms.publisher]))
 
 
 (defn publish-message-raw
   "published the given message, where the caller has specified everything"
 
-  [{:keys [exchange queue msg_type] :as msg}]
+  [{:keys [pub-fn exchange queue msg_type] :as msg}]
   (prn "publish-message-raw for " exchange " / " queue
        " //// (msg) " msg)
 
   (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
+        ;publish-fn (partial pub-fn)]
+    (prn pub-fn)
     (condp
       = (:msg_type msg)
 
-      "edn" (assoc ret :success (qp/publish msg))
-      "pb" (assoc ret :success (qp/publish (pb/encode-content msg))))))
+      "edn" (assoc ret :success ((eval (:pub-fn msg)) msg))
+      "pb"  (assoc ret :success ((eval (:pub-fn msg)) (pb/encode-content msg))))))
 
 
 (defn publish-message
@@ -88,13 +92,39 @@
 
   (publish-message-raw im-msg)
 
-
+  (defn hello [param]
+    (prn "hello")
+    (prn param))
 
   (def one {:id "1",
             :msg_type "edn",
             :exchange "my-exchange",
             :queue "some.queue",
+            :pub-fn   chocolate.message-publisher/hello
             :content "{:id 108, :name \"Alice\", :email \"alice@example.com\"}"})
+  (:pub-fn one)
+  ;(resolve chocolate.message-publisher/hello)
+  #(:pub-fn one)
+  (def function (:pub-fn one))
+  (def function2 (partial chocolate.message-publisher/hello))
+  ((:pub-fn one) one)
+  (function one)
+  (function2 one)
+
+
+
+
+  (def jms-msg (e/get-message {:id "5"}))
+  (:pub-fn jms-msg)
+  ((eval (:pub-fn jms-msg)) jms-msg)
+
+  (publish-message "5")
+
+
+
+
+
+
   (def content (:content one))
 
   (def id "1")

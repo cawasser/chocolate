@@ -8,8 +8,8 @@
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.tools.logging :as log]
     [mount.core :as mount]
-    [trptcolin.versioneer.core :as version]
-    [chocolate.protobuf.local-protobuf])
+    [trptcolin.versioneer.core :as version])
+    ;[chocolate.protobuf.local-protobuf])
   (:gen-class))
 
 ;; log uncaught exceptions in threads

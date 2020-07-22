@@ -8,6 +8,7 @@
 
 
 ;;treated like an instance variable?
+(defonce jms-conn-atom (atom ()))
 (defonce conn-atom (atom ()))
 
 (defn make-connection
