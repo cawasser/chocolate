@@ -34,5 +34,6 @@
   :msg_type "edn"
   :pub-fn   chocolate.amqp.jms.publisher/publish
   :queue    "some"
+  :exchange ""
   :pb_type  ""
   :content  {:user "Steve"}}]
