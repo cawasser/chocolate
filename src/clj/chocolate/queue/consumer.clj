@@ -1,80 +1,15 @@
 (ns chocolate.queue.consumer
   (:require [clojure.tools.logging :as log]
           [com.stuartsierra.component :as component]
-          [bunnicula.component.consumer-with-retry :as consumer]
-          [bunnicula.component.monitoring :as monitoring]
           [chocolate.amqp.rabbit.connection :as conn]
           [chocolate.protobuf.handlers :as h]))
 
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; PRIVATE STUFF
-;
-
-(def consumers (atom {}))
-
-
-(defn- consumer-name [exchange queue]
-  (str exchange "/" queue))
-
-
-(defn- register-consumer
-  "adds the 'service' to the 'consumers' atom, keyed by 'exchange', so we can find and reuse it later
-
-   exchange - the name of the exchange handled by this consumer
-   service - the 'stuart sierra component' that is managing this exchange"
-  [exchange queue service]
-  (swap! consumers assoc (consumer-name exchange queue) service))
-
-
-(defn- find-consumer-for [exchange queue]
-  (get @consumers (consumer-name exchange queue)))
-
-
-(defn- create-consumer-service
-  "creates the 'stuart sierra component' that manages and executes the consumer
-
-   consumer - the bunnicula.consumer to turn into a 'stuart sierra component' for later use
-
-   return - 'stuart sierra component' for later use"
-  [consumer]
-  (component/system-map
-    :connection (conn/connection)
-    :monitoring monitoring/BaseMonitoring
-    :consumer (component/using
-                consumer
-                [:rmq-connection :monitoring])))
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;
-; support different serializers
-;
-
-(defmulti create-consumer (fn [exchange queue handler-fn msg_type] msg_type))
-
-(defmethod create-consumer "edn" [exchange queue handler-fn msg_type]
-  (consumer/create {:message-handler-fn handler-fn
-                    :options            {:queue-name               queue
-                                         :exchange-name            exchange
-                                         :timeout-seconds          120
-                                         :backoff-interval-seconds 60
-                                         :consumer-threads         4
-                                         :max-retries              3}}))
-
-(defmethod create-consumer "pb" [exchange queue handler-fn msg_type]
-  (consumer/create {:message-handler-fn handler-fn
-                    :deserializer       (fn [m] m)
-                    :options            {:queue-name               queue
-                                         :exchange-name            exchange
-                                         :timeout-seconds          120
-                                         :backoff-interval-seconds 60
-                                         :consumer-threads         4
-                                         :max-retries              3}}))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -116,6 +51,8 @@
                             ())))))
 
   ([exchange queue handler-fn] (create-consumer-for exchange queue handler-fn "edn")))
+
+
 
 (defn stop-consumer-for [exchange queue]
   (if-let [consumer (find-consumer-for exchange queue)]

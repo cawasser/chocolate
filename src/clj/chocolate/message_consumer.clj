@@ -1,6 +1,7 @@
 (ns chocolate.message-consumer
   (:require [chocolate.routes.edn-utils :as e]
-            [chocolate.queue.consumer :as qc]
+            [chocolate.amqp.jms.consumer]
+            [chocolate.amqp.rabbit.consumer]
             [chocolate.protobuf.handlers :as h]
             [chocolate.processing :as proc]
             [chocolate.protobuf.utils :as utils]
@@ -9,8 +10,8 @@
 
 
 (defn- call-consumer
-  [exchange queue handler-fn msg_type]
-  (if (empty? (qc/create-consumer-for exchange queue handler-fn msg_type))
+  [consume-fn exchange queue handler-fn msg_type]
+  (if (empty? ((eval consume-fn) exchange queue handler-fn msg_type))
     false
     true))
 
@@ -26,21 +27,23 @@
   ())
 
 (defn start-consumer-raw
-  [exchange queue msg_type pb_type dummy]
+  [consume-fn exchange queue msg_type pb_type dummy]
 
-  (prn "start-consumer-raw " exchange ", " queue ", " msg_type ", " pb_type ", " dummy)
+  (prn "start-consumer-raw " consume-fn "," exchange ", " queue ", " msg_type ", " pb_type ", " dummy)
 
   (let [ret {:exchange exchange :queue queue :msg-type msg_type}]
     (condp
      = msg_type
 
      "edn" (assoc ret :success (call-consumer
+                                consume-fn
                                 exchange
                                 queue
                                 (proc/edn-handler proc/edn-processing-fn)
                                 msg_type))
 
      "pb" (assoc ret :success (call-consumer
+                               consume-fn
                                exchange
                                queue
                                (h/pb-handler proc/pb-processing-fn pb_type (if (string? dummy) (clojure.edn/read-string dummy) dummy))
@@ -56,11 +59,11 @@
 
   [id]
 
-  (if-let [{:keys [exchange queue pb_type msg_type dummy]} (e/get-consumer {:id id})]
+  (if-let [{:keys [consume-fn exchange queue pb_type msg_type dummy]} (e/get-consumer {:id id})]
     (let [d (if (nil? dummy) (utils/get-from pb_type :dummy) dummy)]
      (do
        (prn "start-consumer " exchange ", " queue ", " msg_type ", " pb_type ", " dummy ", " d)
-       (start-consumer-raw exchange queue msg_type pb_type d)))
+       (start-consumer-raw consume-fn exchange queue msg_type pb_type d)))
 
     {:success false :id id}))
 
@@ -132,5 +135,12 @@
                  false true)))))
 
   (qc/stop-and-remove-all-consumers)
+
+
+
+
+
+  (start-consumer "400")
+
 
   ())
