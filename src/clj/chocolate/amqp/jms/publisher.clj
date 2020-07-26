@@ -96,7 +96,7 @@
   (let [pub (get-publisher-for queue)]
     (if (some? pub)
       (do
-        ;(prn pub)
+        (prn "Content=" content)
         (let [serializer (if (= msg_type "edn") nil (fn [m] (m)))]
           (if (nil? serializer)
             (let [ret (protocol/send-message-sync

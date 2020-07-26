@@ -1,12 +1,11 @@
-(ns chocolate.amqp.jms.consumer
+(ns chocolate.amqp.jms.ms
   (:require
-    [clojms.component.consumer :as consumer]
-    [clojms.client.jms.consumer :as jms]
+    [clojms.component.message-system :as ms]
     [chocolate.amqp.jms.connection :as conn]
     [clojure.tools.logging :as log]
-    [com.stuartsierra.component :as component]
-    [clojms.protocol :as protocol]
-    [chocolate.routes.websockets :as ws]))
+    [com.stuartsierra.component :as component]))
+
+
 
 
 
@@ -43,9 +42,9 @@
   [consumer]
   (component/system-map
     :context (conn/connection)
-    :consumer (component/using
-                consumer
-                [:context])))
+    :message-system (component/using
+                      consumer
+                      [:context])))
 
 
 
@@ -61,22 +60,25 @@
 (defmulti create-consumer (fn [queue handler-fn msg_type] msg_type))
 
 (defmethod create-consumer "edn" [queue handler-fn msg_type]
-  (consumer/create {:destination  queue
-                    :deserializer nil
-                    :options            {:queue-name               queue
-                                         :timeout-seconds          120
-                                         :backoff-interval-seconds 60
-                                         :consumer-threads         4
-                                         :max-retries              3}}))
+  (ms/create {:receive-handler handler-fn
+              :consumer-destination  queue
+              :producer-destination ""
+              :options            {:queue-name               queue
+                                   :timeout-seconds          120
+                                   :backoff-interval-seconds 60
+                                   :consumer-threads         4
+                                   :max-retries              3}}))
 
 (defmethod create-consumer "pb" [queue handler-fn msg_type]
-  (consumer/create {:destination  queue
-                    :deserializer       (fn [m] m)
-                    :options            {:queue-name               queue
-                                         :timeout-seconds          120
-                                         :backoff-interval-seconds 60
-                                         :consumer-threads         4
-                                         :max-retries              3}}))
+  (ms/create {:receive-handler handler-fn
+              :consumer-destination  queue
+              :producer-destination ""
+              :deserializer       (fn [m] m)
+              :options            {:queue-name               queue
+                                   :timeout-seconds          120
+                                   :backoff-interval-seconds 60
+                                   :consumer-threads         4
+                                   :max-retries              3}}))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -100,34 +102,17 @@
    unclear if the original is garbage collected or simply leaked."
 
   ([exchange queue  handler-fn msg-type]
-   (let [cons  (find-consumer-for queue)
-         typ   (if (nil? msg-type) "edn" msg-type)]
+   (let [p   (find-consumer-for queue)
+         typ (if (nil? msg-type) "edn" msg-type)]
      (prn queue)
-     (prn  handler-fn)
-     (prn  cons)
      (try
-       (if (not cons)
-         (let [new-cons       (create-consumer queue handler-fn typ)
-               service        (create-consumer-service new-cons)
+       (if (not p)
+         (let [new-p          (create-consumer queue handler-fn typ)
+               service        (create-consumer-service new-p)
                started-server (component/start-system service)]
            (register-consumer queue started-server)
-           ;(protocol/set-message-handler (:consumer started-server) handler-fn)
-           ;(prn (protocol/receive-message-sync (:consumer started-server))) ;; do the consume
-           (let [msg  (protocol/receive-message-sync (:consumer started-server))
-                 msg-to-send {:content msg
-                              :queue "EDN"}]
-             (prn msg)
-             (ws/send-to-all! msg-to-send))
-           ;(ws/send-to-all! (protocol/receive-message-sync (:consumer started-server))) ;; do the consume
-
            started-server)
-         (do
-           (let [msg  (protocol/receive-message-sync (:consumer cons))
-                 msg-to-send {:content msg
-                              :queue "EDN"}]
-             (prn msg)
-             (ws/send-to-all! msg-to-send))
-           cons))
+         p)
        (catch Exception e (do
                             (log/debug "Can't connect consumer: " (.getMessage e))
                             ())))))
@@ -241,13 +226,12 @@
 (comment
 
 
- (def cons1 (create-consumer "some" #() "edn"))
- (:destination cons1)
- (ws/send-to-all! (protocol/receive-message-sync cons1))
+  (def cons1 (create-consumer "some" #() "edn"))
+  (:consumer-destination cons1)
 
 
 
- ())
+  ())
 
 
 
