@@ -18,7 +18,6 @@
 (def consumers (atom {}))
 
 
-
 (defn- consumer-name [queue]
   (str queue "-consumer"))
 
@@ -50,9 +49,6 @@
 
 
 
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; support different serializers
@@ -63,20 +59,20 @@
 (defmethod create-consumer "edn" [queue handler-fn msg_type]
   (consumer/create {:destination  queue
                     :deserializer nil
-                    :options            {:queue-name               queue
-                                         :timeout-seconds          120
-                                         :backoff-interval-seconds 60
-                                         :consumer-threads         4
-                                         :max-retries              3}}))
+                    :options      {:queue-name               queue
+                                   :timeout-seconds          120
+                                   :backoff-interval-seconds 60
+                                   :consumer-threads         4
+                                   :max-retries              3}}))
 
 (defmethod create-consumer "pb" [queue handler-fn msg_type]
   (consumer/create {:destination  queue
-                    :deserializer       (fn [m] m)
-                    :options            {:queue-name               queue
-                                         :timeout-seconds          120
-                                         :backoff-interval-seconds 60
-                                         :consumer-threads         4
-                                         :max-retries              3}}))
+                    :deserializer (fn [m] m)
+                    :options      {:queue-name               queue
+                                   :timeout-seconds          120
+                                   :backoff-interval-seconds 60
+                                   :consumer-threads         4
+                                   :max-retries              3}}))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -102,30 +98,28 @@
   ([exchange queue  handler-fn msg-type]
    (let [cons  (find-consumer-for queue)
          typ   (if (nil? msg-type) "edn" msg-type)]
-     (prn queue)
-     (prn  handler-fn)
-     (prn  cons)
+     ;(prn queue)
+     ;(prn  handler-fn)
+     ;(prn  cons)
      (try
        (if (not cons)
          (let [new-cons       (create-consumer queue handler-fn typ)
                service        (create-consumer-service new-cons)
                started-server (component/start-system service)]
            (register-consumer queue started-server)
-           ;(protocol/set-message-handler (:consumer started-server) handler-fn)
-           ;(prn (protocol/receive-message-sync (:consumer started-server))) ;; do the consume
            (let [msg  (protocol/receive-message-sync (:consumer started-server))
+                 msg-type-caps (.toUpperCase msg-type)
                  msg-to-send {:content msg
-                              :queue "EDN"}]
-             (prn msg)
+                              :queue msg-type-caps}]
+             ;(prn msg)
              (ws/send-to-all! msg-to-send))
-           ;(ws/send-to-all! (protocol/receive-message-sync (:consumer started-server))) ;; do the consume
-
            started-server)
          (do
            (let [msg  (protocol/receive-message-sync (:consumer cons))
+                 msg-type-caps (.toUpperCase msg-type)
                  msg-to-send {:content msg
-                              :queue "EDN"}]
-             (prn msg)
+                              :queue msg-type-caps}]
+             ;(prn msg)
              (ws/send-to-all! msg-to-send))
            cons))
        (catch Exception e (do
