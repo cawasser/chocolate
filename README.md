@@ -32,6 +32,15 @@ You will also need to add `dev-config.edn` to the main project folder, containin
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 
+
+### Qpid Configuration
+
+To successfully interact with a c++ qpid broker, you need and instance of one running.
+To set up a local docker container with a qpid broker follow the instructions 
+[here](docs/qpid-container.md).
+
+
+
 ### RabbitMQ Configuration
 
 Prior to running the app, you will need to install (not discussed here) _and_ run RabbitMQ. Then, using  
