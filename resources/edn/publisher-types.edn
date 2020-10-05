@@ -36,4 +36,13 @@
   :queue    "some"
   :exchange ""
   :pb_type  ""
-  :content  {:user "Steve"}}]
+  :content  {:user "Steve"}}
+ {:id       "6"
+  :msg_type "pb"
+  :pub-fn   chocolate.amqp.jms.publisher/publish
+  :exchange ""
+  :queue    "person"
+  :pb_type  "Person"
+  :content  {:id    108
+             :name  "Alice"
+             :email "alice@example.com"}}]

@@ -201,7 +201,20 @@
                 (map (fn [m] ^{:key (:id m)}
                               [:div.tile.is-child.box
                                {:on-click #(publish-message m)}
-                               (str (:id m) ", " (:exchange m) "/" (:queue m))]) @messages))]]]]]
+                               (let [destination (if (< 0(compare (:exchange m) ""))
+                                                   (do
+                                                     (prn (:exchange m))
+                                                     (str (:exchange m) "/" (:queue m)))
+                                                   (str (:queue m)))
+                                     publish-service (clojure.string/replace
+                                                       (str (:pub-fn m))
+                                                       #"chocolate.amqp." "")
+                                     jms-to-qpid     (clojure.string/replace
+                                                       publish-service #"jms" "qpid")
+                                     pub-service    (clojure.string/replace
+                                                      jms-to-qpid #".publisher" "")
+                                     Pub-Service    (clojure.string/capitalize pub-service)]
+                                 (str (:id m) ". " Pub-Service ": " "\n" destination))]) @messages))]]]]]
 
          [:div.level-right {:style {:width "50%"}}
           [:h3 "Received:"
@@ -216,7 +229,7 @@
                           (str (:queue m))]) @consumers))]]]]]]]]
 
        [:div.container
-        [:h5 "received messages"]
+        [:h4 "Received Messages"]
         [:div
          (for [[q msgs] @messages-received]
            ^{:key q} [:p (str q ": " msgs)])]]])))

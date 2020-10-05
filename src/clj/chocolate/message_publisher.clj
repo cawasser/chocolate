@@ -1,6 +1,6 @@
 (ns chocolate.message-publisher
   (:require [chocolate.routes.edn-utils :as e]
-            [chocolate.queue.publisher :as qp]
+            ;[chocolate.queue.publisher :as qp]
             [chocolate.protobuf.interface :as pb]
             [chocolate.protobuf.encoder :as pbe]
             [chocolate.amqp.rabbit.publisher :as rab]

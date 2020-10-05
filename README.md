@@ -26,7 +26,9 @@ You will also need to add `dev-config.edn` to the main project folder, containin
  :broker-port 5672
  :broker-username "guest"
  :broker-password "guest"
- :broker-vhost "/main"}
+ :broker-vhost "/main"
+
+ :broker-url-1 "amqp://localhost:1111"}
 ```
 to make the system happy. (I'm not going to add this file to this repo, just make your own copy)
 

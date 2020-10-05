@@ -97,17 +97,15 @@
     (if (some? pub)
       (do
         (prn "Content=" content)
-        (let [serializer (if (= msg_type "edn") nil (fn [m] (m)))]
-          (if (nil? serializer)
-            (let [ret (protocol/send-message-sync
-                        (:publisher pub)
-                        queue
-                        content
-                        {:serializer serializer})]
-              (prn ret)
-              (if (some? ret)
-                true
-                false)))))
+        (let [ret (protocol/send-message-sync
+                      (:publisher pub)
+                      queue
+                      content)]
+                      ;{:serializer serializer})]
+            (prn ret)
+            (if (some? ret)
+              true
+              false)))
       (do
         (prn "no publisher found! " queue "/" msg_type)
         false))))

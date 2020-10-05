@@ -97,7 +97,10 @@
 
   ([exchange queue  handler-fn msg-type]
    (let [cons  (find-consumer-for queue)
-         typ   (if (nil? msg-type) "edn" msg-type)]
+         typ   (if (nil? msg-type) "edn" msg-type)
+         decoder (if (< 0(compare typ "pb"))
+                   (handler-fn)
+                   nil)]
      ;(prn queue)
      ;(prn  handler-fn)
      ;(prn  cons)
@@ -107,18 +110,20 @@
                service        (create-consumer-service new-cons)
                started-server (component/start-system service)]
            (register-consumer queue started-server)
-           (let [msg  (protocol/receive-message-sync (:consumer started-server))
+           (let [msg           (protocol/receive-message-sync (:consumer started-server))
+                 decoded-msg   (if decoder (decoder msg) msg)
                  msg-type-caps (.toUpperCase msg-type)
-                 msg-to-send {:content msg
-                              :queue msg-type-caps}]
+                 msg-to-send   {:content decoded-msg
+                                :queue msg-type-caps}]
              ;(prn msg)
              (ws/send-to-all! msg-to-send))
            started-server)
          (do
            (let [msg  (protocol/receive-message-sync (:consumer cons))
+                 decoded-msg   (if decoder (decoder msg) msg)
                  msg-type-caps (.toUpperCase msg-type)
-                 msg-to-send {:content msg
-                              :queue msg-type-caps}]
+                 msg-to-send   {:content decoded-msg
+                                :queue msg-type-caps}]
              ;(prn msg)
              (ws/send-to-all! msg-to-send))
            cons))

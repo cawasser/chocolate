@@ -26,5 +26,5 @@
   :msg_type   "pb"
   :consume-fn chocolate.amqp.jms.consumer/create-consumer-for
   :exchange   ""
-  :queue      "message"
-  :pb_type    "Message"}]
+  :queue      "person"
+  :pb_type    "Person"}]
